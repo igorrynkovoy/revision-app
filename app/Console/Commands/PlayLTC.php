@@ -37,39 +37,7 @@ class PlayLTC extends Command
      */
     public function handle()
     {
-        // MHyW5CdfjVcUxBTJFw1oVuvHVEGPNCXoKb
-        $this->client = new Client(config('services.litecoin-wallet.host'));
-        for ($height = 1300000; $height < 2000000; $height++) {
-            $t = microtime(true);
-            $this->info('Handle block ' . $height);
-            $blockHash = $this->client->getblockhash($height)->result();
-            $data = $this->client->getblock($blockHash, 2)->result();
-            $txs = Arr::get($data, 'tx');
-            foreach ($txs as $tx) {
-
-                $txid = $tx['txid'];
-                $vouts = Arr::get($tx, 'vout');
-                $addressesList = [];
-                foreach ($vouts as $vout) {
-                    $addresses = isset($vout['scriptPubKey']) && isset($vout['scriptPubKey']['addresses']) ? $vout['scriptPubKey']['addresses'] : [];
-                    $addressesList = array_merge($addressesList, $addresses);
-                }
-
-                $addressesList = array_unique($addressesList);
-                $inserts = 0;
-                foreach ($addressesList as $address) {
-                    $inserts += DB::table('ltc_dict')
-                        ->insertOrIgnore([
-                            'address' => $address,
-                            'tx_hash' => $txid,
-                            'block_height' => $height
-                        ]);
-                }
-            }
-
-            $this->info('Transactions: ' . count($txs) . ' Inserts: ' . $inserts . ' Time: ' . (microtime(true) - $t));
-        }
-        return;
+        
         $blockCypher = new BlockCypher('ltc');
         $data = $blockCypher->getAddress('ltc1qlkyg42akhv440fp63nn27z42xxl9clxpqhz5uf', ['limit' => 2000, 'confirmations' => 1]);
         $txs = Arr::pluck($data['txrefs'], 'tx_hash');
