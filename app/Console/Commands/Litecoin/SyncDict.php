@@ -33,7 +33,11 @@ class SyncDict extends Command
      */
     public function handle()
     {
-        $startBlock = (int)$this->argument('startBlock', 1);
+        $startBlock = (int)$this->argument('startBlock', null);
+        if(empty($startBlock)) {
+            $startBlock = DB::table('ltc_dict')->max('block_height');
+        }
+        
         $this->client = new Client(config('services.litecoin-wallet.host'));
         for ($height = $startBlock; $height < 2000000; $height++) {
             $t = microtime(true);

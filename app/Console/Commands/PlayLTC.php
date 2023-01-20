@@ -37,7 +37,7 @@ class PlayLTC extends Command
      */
     public function handle()
     {
-        
+
         $blockCypher = new BlockCypher('ltc');
         $data = $blockCypher->getAddress('ltc1qlkyg42akhv440fp63nn27z42xxl9clxpqhz5uf', ['limit' => 2000, 'confirmations' => 1]);
         $txs = Arr::pluck($data['txrefs'], 'tx_hash');
