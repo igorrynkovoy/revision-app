@@ -34,16 +34,18 @@ class SyncDict extends Command
     public function handle()
     {
         $startBlock = (int)$this->argument('startBlock', null);
-        if(empty($startBlock)) {
+        if (empty($startBlock)) {
             $startBlock = DB::table('ltc_dict')->max('block_height');
         }
-        
+
         $this->client = new Client(config('services.litecoin-wallet.host'));
         for ($height = $startBlock; $height < 2000000; $height++) {
             $t = microtime(true);
             $this->info('Handle block ' . $height);
+            $rt = microtime(true);
             $blockHash = $this->client->getblockhash($height)->result();
             $data = $this->client->getblock($blockHash, 2)->result();
+            $rt = microtime(true) - $rt;
             $txs = Arr::get($data, 'tx');
             foreach ($txs as $tx) {
                 $txid = $tx['txid'];
@@ -70,7 +72,7 @@ class SyncDict extends Command
 
             $t = (microtime(true) - $t);
             $method = $t > 0.1 ? 'warn' : 'info';
-            $this->$method('Transactions: ' . count($txs) . ' Inserts: ' . $inserts . ' Time: ' . $t);
+            $this->$method('Transactions: ' . count($txs) . ' Inserts: ' . $inserts . ' Time: ' . $t . ' Request time: ' . $rt);
         }
     }
 }
