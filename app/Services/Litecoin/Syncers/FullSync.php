@@ -74,8 +74,7 @@ class FullSync
                 Log::error('Transaction ' . $txid . ' has invalid output addresses in output ' . $vout['n'], $vout);
                 $addresses = ['XXXXXXXXXXXXXXXX'];
             }
-
-            $amount = bcmul(number_format($vout['value'], 8, '', ''), bcpow('10', '8'));
+            $amount = bcmul(number_format($vout['value'], 8, '.', ''), 10**8);
             $totalAmount = bcadd($totalAmount, $amount);
             $outputs[] = [
                 'address' => $addresses[0],
