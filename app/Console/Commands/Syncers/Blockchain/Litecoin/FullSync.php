@@ -66,7 +66,9 @@ class FullSync extends Command
             } catch (QueryException $exception) {
                 if (strpos($exception->getMessage(), '1062 Duplicate entry') > 0) {
                     $this->warn('Block has been already processed');
+                    continue;
                 }
+                throw $exception;
             }
 
             $nextBlockToSync = $height + 1;
