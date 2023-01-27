@@ -25,6 +25,12 @@ class FullSync
         $this->client = new Client(config('services.litecoin-wallet.host'));
     }
 
+    public function isBlockSynced(int $blockNumber): bool
+    {
+        return Transaction::query()->where('block_number', $blockNumber)->exists();
+    }
+
+
     public function getBlockToSync($blockNumber = null)
     {
         $blockNumber = $blockNumber ?? (int)Transaction::query()->max('block_number') + 1;

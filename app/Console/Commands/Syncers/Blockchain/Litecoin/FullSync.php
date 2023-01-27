@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Syncers\Blockchain\Litecoin;
 
+use App\Exceptions\Services\Sync\Blockchain\Litecoin\FullSync\BlockAlreadySynced;
 use Denpa\Bitcoin\Client;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
@@ -27,6 +28,8 @@ class FullSync extends Command
 
     protected Client $wallet;
 
+    private \App\Services\Litecoin\Syncers\FullSync $fullSync;
+
     /**
      * Execute the console command.
      *
@@ -43,40 +46,60 @@ class FullSync extends Command
             exit;
         }
 
-        $fullSync = new \App\Services\Litecoin\Syncers\FullSync();
+        $this->fullSync = new \App\Services\Litecoin\Syncers\FullSync();
         $nextBlockToSync = $fromBlock;
-        while (true) {
-            //$this->info('New while step.');
+        $syncedBlockDetected = false;
 
+        while (true) {
+            if (isset($toBlock) && $nextBlockToSync >= $toBlock) {
+                break;
+            }
+            
             $t = microtime(true);
-            $block = $fullSync->getBlockToSync($nextBlockToSync);
+
+            if ($syncedBlockDetected && $this->fullSync->isBlockSynced($nextBlockToSync)) {
+                $this->warn('Block ' . $nextBlockToSync . ' has been already synced. Skip it.');
+                $nextBlockToSync++;
+                continue;
+            }
+
+            $block = $this->fullSync->getBlockToSync($nextBlockToSync);
 
             if (!$block) {
                 $this->noBlockFound();
             }
+
             $height = Arr::get($block, 'height');
             $txs = count($block['tx']);
 
             $this->info('Block ' . $height . ' found and loaded in ' . (microtime(true) - $t));
+
             try {
-                $fullSync->handleBlock($block);
+                $this->syncBlock($block);
                 $t = (microtime(true) - $t);
                 $method = $t > 0.1 ? 'warn' : 'info';
                 $this->$method('Block ' . $height . ' with ' . $txs . ' txs saved in ' . $t);
-            } catch (QueryException $exception) {
-                if (strpos($exception->getMessage(), '1062 Duplicate entry') > 0) {
-                    $this->warn('Block has been already processed');
-                    $nextBlockToSync = $height + 1;
-                    continue;
-                }
-                throw $exception;
+            } catch (BlockAlreadySynced $exception) {
+                $this->warn('Block ' . $height . ' has been already synced');
+                $syncedBlockDetected = true;
             }
-            
+
             $nextBlockToSync = $height + 1;
 
-            if (isset($toBlock) && $nextBlockToSync >= $toBlock) {
-                break;
+
+        }
+    }
+
+    private function syncBlock($block)
+    {
+        try {
+            $this->fullSync->handleBlock($block);
+        } catch (QueryException $exception) {
+            if (strpos($exception->getMessage(), '1062 Duplicate entry') > 0) {
+                throw new BlockAlreadySynced();
             }
+
+            throw $exception;
         }
     }
 

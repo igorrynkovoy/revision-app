@@ -45,7 +45,7 @@ class FullSyncFixPool extends Command
                 })
                 ->whereNotNull('litecoin_transaction_outputs.id')
                 ->orderBy('input_block_number', 'asc')
-                ->limit(10)
+                ->limit(100)
                 ->get();
                 dump($items);
             if($items->isEmpty()) {
