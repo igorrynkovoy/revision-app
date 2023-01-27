@@ -25,12 +25,12 @@ class FullSync
         $this->client = new Client(config('services.litecoin-wallet.host'));
     }
 
-    public function getBlockToSync()
+    public function getBlockToSync($blockNumber = null)
     {
-        $maxDBBLockNumber = (int)Transaction::query()->max('block_number');
+        $blockNumber = $blockNumber ?? (int)Transaction::query()->max('block_number') + 1;
 
         try {
-            $blockHash = $this->client->getblockhash($maxDBBLockNumber + 1)->result();
+            $blockHash = $this->client->getblockhash((int)$blockNumber)->result();
         } catch (BadRemoteCallException $exception) {
             if ($exception->getCode() === -8) {
                 return null;
@@ -51,7 +51,6 @@ class FullSync
             $txid = $tx['txid'];
             $t = microtime(true);
             $this->saveTx($tx, $blockHeight, $blockTime);
-            dump('Transasction ' . $txid . 'saved in ' . (microtime(true) - $t));
         }
         DB::commit();
     }
@@ -61,7 +60,7 @@ class FullSync
         $txid = $tx['txid'];
         $vins = Arr::get($tx, 'vin');
         $vouts = Arr::get($tx, 'vout');
-        
+
         $totalAmount = '0';
         $outputs = [];
         foreach ($vouts as $vout) {
@@ -75,7 +74,7 @@ class FullSync
                 Log::error('Transaction ' . $txid . ' has invalid output addresses in output ' . $vout['n'], $vout);
                 $addresses = ['XXXXXXXXXXXXXXXX'];
             }
-            $amount = bcmul(number_format($vout['value'], 8, '.', ''), 10**8);
+            $amount = bcmul(number_format($vout['value'], 8, '.', ''), 10 ** 8);
             $totalAmount = bcadd($totalAmount, $amount);
             $outputs[] = [
                 'address' => $addresses[0],
@@ -91,6 +90,7 @@ class FullSync
             ->getQuery()
             ->insertOrIgnore($outputs);
         $isCoinbase = false;
+        $vinToPool = [];
         foreach ($vins as $index => $vin) {
             if (!empty(Arr::get($vin, 'coinbase'))) {
                 $isCoinbase = true;
@@ -106,9 +106,18 @@ class FullSync
                 ]);
 
             if (!$updated) {
-                Log::error('Transaction ' . $txid . ' has zero update for output ' . $index, ['txid' => $txid, 'input_index' => $index, 'input_txid' => $vin['txid'], 'input_tx_output' => $vin['vout']]);
+                $vinToPool[] = [
+                    'input_transaction_hash' => $txid,
+                    'input_index' => $index,
+                    'output_transaction_hash' => $vin['txid'],
+                    'output_index' => $vin['vout'],
+                    'input_block_number' => $blockHeight
+                ];
             }
         }
+
+        DB::table('litecoin_transactions_inputs_pool')
+            ->insert($vinToPool);
 
         Transaction::query()->getQuery()
             ->insert([
@@ -157,6 +166,5 @@ class FullSync
 
         return [$p2pkh->getAddress(NetworkFactory::litecoin())];
     }
-
 }
 
