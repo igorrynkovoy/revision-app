@@ -47,11 +47,15 @@ class FullSync
         $blockTime = Arr::get($block, 'time');
 
         DB::beginTransaction();
-        foreach ($txs as $tx) {
-            $txid = $tx['txid'];
-            $t = microtime(true);
-            $this->saveTx($tx, $blockHeight, $blockTime);
+        try {
+            foreach ($txs as $tx) {
+                $this->saveTx($tx, $blockHeight, $blockTime);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
+
         DB::commit();
     }
 
