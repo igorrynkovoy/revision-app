@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "bitwasp/bech32": "^0.0.1",
         "denpa/php-bitcoinrpc": "^2.2",
         "graze/guzzle-jsonrpc": "dev-guzzle-7",
         "guzzlehttp/guzzle": "^7.2",
@@ -16,9 +17,11 @@
         "laravel/tinker": "^2.7",
         "laudis/neo4j-php-client": "^2.8",
         "maslakoff/php-etherscan-api": "dev-master",
+        "olegabr/bitcoin": "^1.0",
         "predis/predis": "^2.0",
         "psr/simple-cache": "^1.0",
-        "spomky-labs/cbor-php": "^3.0"
+        "spomky-labs/cbor-php": "^3.0",
+        "stephenhill/base58": "^1.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
@@ -77,6 +80,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/SineMah/NeoEloquent"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/olegabr/bitcoin-php.git"
         },
         {
             "type": "git",

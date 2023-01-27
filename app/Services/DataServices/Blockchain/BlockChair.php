@@ -9,6 +9,7 @@ use function config;
 
 class BlockChair
 {
+    const BLOCKCHAIN_BITCOIN = 'bitcoin';
     const BLOCKCHAIN_LITECOIN = 'litecoin';
     const BLOCKCHAIN_ETHEREUM = 'ethereum';
     const API_HOST = 'https://api.blockchair.com/';

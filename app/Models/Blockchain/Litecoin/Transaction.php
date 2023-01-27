@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property integer $id
  * @property string $hash
- * @property string $block_hash
  * @property integer $block_number
  * @property integer $total_inputs
  * @property integer $total_outputs
  * @property float $fee
  * @property float $amount
+ * @property boolean $is_coinbase
  * @property boolean $processed
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -29,7 +29,9 @@ class Transaction extends Model
 
     protected $table = 'litecoin_transactions';
 
-    protected $dates = ['added_at'];
+    public $timestamps = false;
+
+    protected $dates = ['added_at', 'created_at'];
 
     public function inputs()
     {
