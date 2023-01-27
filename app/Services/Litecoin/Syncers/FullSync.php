@@ -44,23 +44,24 @@ class FullSync
     {
         $txs = Arr::get($block, 'tx');
         $blockHeight = Arr::get($block, 'height');
+        $blockTime = Arr::get($block, 'time');
 
         DB::beginTransaction();
         foreach ($txs as $tx) {
             $txid = $tx['txid'];
             $t = microtime(true);
-            $this->saveTx($tx, $blockHeight);
+            $this->saveTx($tx, $blockHeight, $blockTime);
             dump('Transasction ' . $txid . 'saved in ' . (microtime(true) - $t));
         }
         DB::commit();
     }
 
-    private function saveTx($tx, $blockHeight)
+    private function saveTx($tx, $blockHeight, $blockTime)
     {
         $txid = $tx['txid'];
         $vins = Arr::get($tx, 'vin');
         $vouts = Arr::get($tx, 'vout');
-
+        
         $totalAmount = '0';
         $outputs = [];
         foreach ($vouts as $vout) {
@@ -119,7 +120,7 @@ class FullSync
                 'fee' => 0, // TODO
                 'amount' => $totalAmount,
                 'processed' => false,
-                'created_at' => Carbon::createFromTimestampUTC(Arr::get($tx, 'time'))
+                'created_at' => Carbon::createFromTimestampUTC($blockTime)
             ]);
     }
 
