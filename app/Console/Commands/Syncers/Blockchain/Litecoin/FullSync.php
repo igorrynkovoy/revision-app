@@ -54,13 +54,15 @@ class FullSync extends Command
             if (isset($toBlock) && $nextBlockToSync >= $toBlock) {
                 break;
             }
-            
+
             $t = microtime(true);
 
             if ($syncedBlockDetected && $this->fullSync->isBlockSynced($nextBlockToSync)) {
                 $this->warn('Block ' . $nextBlockToSync . ' has been already synced. Skip it.');
                 $nextBlockToSync++;
                 continue;
+            } else {
+                $syncedBlockDetected = false;
             }
 
             $block = $this->fullSync->getBlockToSync($nextBlockToSync);
