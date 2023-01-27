@@ -39,7 +39,7 @@ class FullSync extends Command
     {
         $fromBlock = $this->option('from');
         $toBlock = $this->option('to');
-        $optionCheck = ((isset($fromBlock) || isset($toBlock)) && $fromBlock < $toBlock);
+        $optionCheck = (!isset($fromBlock) && !isset($toBlock)) || ((isset($fromBlock) || isset($toBlock)) && $fromBlock < $toBlock);
 
         if (!$optionCheck) {
             $this->error('Invalid period');
