@@ -65,10 +65,8 @@ class FullSync
             throw $e;
         }
 
-
-        $t = microtime(true);
-        $this->transactionAddressSync->syncBlock($blockHeight);
-        dump(microtime(true) - $t);
+        // TODO: Sync only when normal sync, when syncing only latest blocks
+        //$this->transactionAddressSync->syncBlock($blockHeight);
 
         DB::commit();
     }
