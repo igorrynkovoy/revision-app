@@ -25,8 +25,15 @@ class TransactionController extends Controller
         if ($request->filled('block_number')) {
             $transactions->where('block_number', $request->get('block_number'));
         }
+
         if ($request->filled('hash')) {
             $transactions->where('hash', $request->get('hash'));
+        }
+
+        if ($request->filled('address')) {
+            $transactions->select(['litecoin_transactions.*'])
+                ->leftJoin('litecoin_transactions_addresses', 'litecoin_transactions.hash', '=', 'litecoin_transactions_addresses.transaction_hash')
+                ->where('litecoin_transactions_addresses.address', $request->get('address'));
         }
 
         $transactions = $transactions->get();
@@ -43,6 +50,6 @@ class TransactionController extends Controller
 
         $resource = new  TransactionResource($transaction);
 
-        return  $resource;
+        return $resource;
     }
 }

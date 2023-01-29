@@ -18,7 +18,7 @@ class TransactionAddressesSync
             ->max('block_number');
     }
 
-    public function syncBlock($blockNumber, $chunk)
+    public function syncBlock($blockNumber, $chunk = 1)
     {
         $toBlock = $blockNumber + $chunk - 1;
         DB::insert('INSERT IGNORE INTO litecoin_transactions_addresses

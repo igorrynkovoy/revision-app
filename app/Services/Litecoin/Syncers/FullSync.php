@@ -20,9 +20,12 @@ use Illuminate\Support\Facades\Log;
 
 class FullSync
 {
+    private TransactionAddressesSync $transactionAddressSync;
+
     public function __construct()
     {
         $this->client = new Client(config('services.litecoin-wallet.host'));
+        $this->transactionAddressSync = new TransactionAddressesSync();
     }
 
     public function isBlockSynced(int $blockNumber): bool
@@ -61,6 +64,11 @@ class FullSync
             DB::rollBack();
             throw $e;
         }
+
+
+        $t = microtime(true);
+        $this->transactionAddressSync->syncBlock($blockHeight);
+        dump(microtime(true) - $t);
 
         DB::commit();
     }
@@ -141,21 +149,6 @@ class FullSync
                 'processed' => false,
                 'created_at' => Carbon::createFromTimestampUTC($blockTime)
             ]);
-    }
-
-    private function getTransactionModel($tx, $blockHeight): Transaction
-    {
-        $transaction = new Transaction();
-        $transaction->hash = Arr::get($tx, 'txid');
-        $transaction->block_number = $blockHeight;
-        $transaction->total_inputs = count(Arr::get($tx, 'vin', []));
-        $transaction->total_outputs = count(Arr::get($tx, 'vout', []));
-        $transaction->fee = 0; // TODO
-        $transaction->amount = 0; // TODO
-        $transaction->processed = false;
-        $transaction->created_at = Carbon::createFromTimestampUTC(Arr::get($tx, 'time'));
-
-        return $transaction;
     }
 
     private function decodeScriptPubKey($data)
