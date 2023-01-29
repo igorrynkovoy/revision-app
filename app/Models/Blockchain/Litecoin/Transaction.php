@@ -18,8 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property boolean $is_coinbase
  * @property boolean $processed
  * @property Carbon $created_at
- * @property Carbon $updated_at
  * @property Carbon $added_at
+ * @property Carbon $processed_at
  * @property Collection $inputs
  * @property Collection $outputs
  */
@@ -31,15 +31,17 @@ class Transaction extends Model
 
     public $timestamps = false;
 
-    protected $dates = ['added_at', 'created_at'];
+    protected $dates = ['added_at', 'created_at', 'processed_at'];
+
+    protected $casts = ['processed' => 'bool', 'is_coinbase' => 'bool'];
 
     public function inputs()
     {
-        return $this->hasMany(TransactionOutput::class, 'input_transaction_hash', 'hash');
+        return $this->hasMany(TransactionOutput::class, 'input_transaction_hash', 'hash')->orderBy('input_index');
     }
 
     public function outputs()
     {
-        return $this->hasMany(TransactionOutput::class, 'transaction_hash', 'hash');
+        return $this->hasMany(TransactionOutput::class, 'transaction_hash', 'hash')->orderBy('index');
     }
 }

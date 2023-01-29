@@ -31,5 +31,9 @@ Route::group(['prefix' => 'blockchain', 'namespace' => 'Blockchain'], function (
         Route::group(['prefix' => 'address'], function () {
             Route::get('/list', 'AddressController@getList');
         });
+        Route::group(['prefix' => 'transaction'], function () {
+            Route::get('/list', 'TransactionController@getList');
+            Route::get('/{txhash}', 'TransactionController@getTransaction');
+        });
     });
 });

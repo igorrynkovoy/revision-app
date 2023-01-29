@@ -131,7 +131,7 @@ class FullSync
 
         Transaction::query()->getQuery()
             ->insert([
-                'hash' => Arr::get($tx, 'txid'),
+                'hash' => $txid,
                 'block_number' => $blockHeight,
                 'is_coinbase' => $isCoinbase,
                 'total_inputs' => count(Arr::get($tx, 'vin', [])),

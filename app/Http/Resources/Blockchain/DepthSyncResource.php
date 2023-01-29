@@ -29,7 +29,7 @@ class DepthSyncResource extends JsonResource
             'current_depth' => $this->current_depth,
             'processed' => $this->processed,
             'processed_code' => $this->processed_code,
-            'processed_at' => $this->processed_at
+            'processed_at' => \Dates::toTimestamp($this->processed_at)
         ];
     }
 }
