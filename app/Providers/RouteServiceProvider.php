@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Blockchain\DepthSync;
+use App\Models\Workspace;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -44,6 +45,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->whereNull('root_sync_id')
                 ->where('id', $value)
                 ->firstOrFail();
+        });
+
+        Route::bind('workspace', function ($value) {
+            return Workspace::query()
+                ->findOrFail($value);
         });
     }
 

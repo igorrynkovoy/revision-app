@@ -13,13 +13,15 @@ class TransactionController extends Controller
 {
     public function getList(Request $request)
     {
-        $limit = min(30, $request->get('limit', 100));
+        $limit = min(100, $request->get('limit', 100));
+        $page = max(1, $request->get('page', 1));
+
         $order = $request->get('order', 'desc');
         $sortBy = $request->get('sort_by', 'id');
         $sortBy = in_array($sortBy, ['block_number', 'hash']) ? $sortBy : 'block_number';
 
         $transactions = Transaction::query()
-            ->limit($limit)
+            ->forPage($page, $limit)
             ->orderBy($sortBy, $order);
 
         if ($request->filled('block_number')) {

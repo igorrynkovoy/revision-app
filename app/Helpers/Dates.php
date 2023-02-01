@@ -9,7 +9,7 @@ class Dates
     /**
      * @decription Returns timestamp of a date
      */
-    public static function toTimestamp(mixed $date): null|int
+    public function toTimestamp(mixed $date): null|int
     {
         if ($date instanceof Carbon) {
             return $date->timestamp;

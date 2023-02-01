@@ -69,6 +69,7 @@ class FullSync extends Command
 
             if (!$block) {
                 $this->noBlockFound();
+                continue;
             }
 
             $height = Arr::get($block, 'height');

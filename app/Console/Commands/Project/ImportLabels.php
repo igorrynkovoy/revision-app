@@ -2,21 +2,8 @@
 
 namespace App\Console\Commands\Project;
 
-use App\Jobs\Fire;
-use App\Models\Blockchain\Ethereum;
-use App\Models\Graph\Ethereum\Address;
-use App\Models\Graph\Ethereum\Transaction;
-use App\Services\Ethereum\Services\Etherscan;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Laudis\Neo4j\Neo4j\Neo4jConnectionPool;
-use Vinelab\NeoEloquent\Facade\Neo4jSchema;
-use Vinelab\NeoEloquent\NeoEloquentServiceProvider;
 
 class ImportLabels extends Command
 {
@@ -39,7 +26,7 @@ class ImportLabels extends Command
      *
      * @return int
      */
-    public function handle(Neo4jSchema $r)
+    public function handle()
     {
         $handle = fopen(storage_path('Litecoin_wallets.csv'), "r");
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {

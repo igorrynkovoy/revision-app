@@ -19,6 +19,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/bootstrap', ['uses' => 'BootstrapController@getBootstrap']);
+Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function () {
+    Route::get('/list', 'WorkspaceController@getList');
+
+    Route::group(['prefix' => '/{workspace}/address-labels'], function () {
+        Route::get('/list', 'AddressLabelController@getList');
+        Route::post('/create', 'AddressLabelController@postCreate');
+        Route::post('/edit/{addressLabelID}', 'AddressLabelController@postEdit');
+        Route::post('/delete/{addressLabelID}', 'AddressLabelController@postDelete');
+        Route::post('/import-csv', 'AddressLabelController@postImportCSV');
+    });
+});
+
 Route::group(['prefix' => 'blockchain', 'namespace' => 'Blockchain'], function () {
     Route::group(['prefix' => 'depth-sync'], function () {
         Route::get('/list', 'DepthSyncController@getList');

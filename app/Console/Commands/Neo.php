@@ -2,21 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\Fire;
 use App\Models\Blockchain\Ethereum;
 use App\Models\Graph\Ethereum\Address;
 use App\Models\Graph\Ethereum\Transaction;
-use App\Services\Ethereum\Services\Etherscan;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Laudis\Neo4j\Neo4j\Neo4jConnectionPool;
-use Vinelab\NeoEloquent\Facade\Neo4jSchema;
-use Vinelab\NeoEloquent\NeoEloquentServiceProvider;
 
 class Neo extends Command
 {
@@ -41,7 +31,7 @@ class Neo extends Command
      *
      * @return int
      */
-    public function handle(Neo4jSchema $r)
+    public function handle()
     {
         Ethereum\Transaction::with(['inputs', 'outputs'])->chunk(100, function (Collection $collection) {
             $collection->each(function (Ethereum\Transaction $transaction) {
@@ -50,7 +40,6 @@ class Neo extends Command
             });
         });
         dd();
-
         $from = Address::firstOrCreate(['address' => '0xadee0d9485820c6d099deb0b09e312639e665c84', 'type' => 'address']);
         $to = Address::firstOrCreate(['address' => '0x912fd21d7a69678227fe6d08c64222db41477ba0', 'type' => 'address']);
 

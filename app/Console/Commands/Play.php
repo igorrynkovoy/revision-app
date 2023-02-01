@@ -31,7 +31,20 @@ class Play extends Command
      */
     public function handle()
     {
-        $this->runRoot();
+        $destinationAddress = '3HnkejzGjAYzRuUt7o2sKRxuba2UKXMjdn';
+        echo "SRC: " . $destinationAddress . PHP_EOL;
+
+        Bitcoin::setNetwork(NetworkFactory::bitcoin());
+
+        $addressCreator = new AddressCreator();
+        $address = $addressCreator->fromString($destinationAddress);
+
+        $p2pkh = new PayToPubKeyHashAddress($address->getHash());
+
+        $p2wpkhWP1 = WitnessProgram::v0($p2pkh->getHash());
+        $p2shP2wsh1 = new ScriptHashAddress($p2wpkhWP1->getScript()->getScriptHash());
+
+        echo "DST: " . $p2shP2wsh1->getAddress() . PHP_EOL;
     }
 
     public function addressSynces()

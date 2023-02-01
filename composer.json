@@ -16,6 +16,7 @@
         "laravel/telescope": "^4.10",
         "laravel/tinker": "^2.7",
         "laudis/neo4j-php-client": "^2.8",
+        "league/csv": "^9.8",
         "maslakoff/php-etherscan-api": "dev-master",
         "olegabr/bitcoin": "^1.0",
         "predis/predis": "^2.0",
