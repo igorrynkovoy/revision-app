@@ -59,17 +59,11 @@ class TransactionAddresses extends Command
             $t = microtime(true);
 
             $this->info(sprintf('Handle blocks from %s to %s', $blockToSync, $chunk));
-            DB::beginTransaction();
 
-            try {
-                $syncer->syncBlock($blockToSync, $chunk);
-            } catch (\Exception $exception) {
-                DB::rollBack();
-                throw $exception;
-            }
+            $syncer->syncBlock($blockToSync, $chunk);
 
             $this->info(sprintf('Blocks synced in %s', (microtime(true) - $t)));
-            DB::commit();
+
             $blockToSync += $chunk;
         }
     }
