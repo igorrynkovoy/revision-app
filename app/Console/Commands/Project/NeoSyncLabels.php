@@ -47,7 +47,7 @@ class NeoSyncLabels extends Command
 
         $this->client->run('CREATE (:Project {id: $id, title: $title})', ['id' => $workspace->id, 'title' => $workspace->title]);
         $workspace->labels()->chunk(100, function (Collection $list) {
-            $list->each(function (Workspace\AddressLabel $label) {
+            $list->each(function (Workspace\Label $label) {
                 $query = 'CREATE (al:AddressLabel {address: $address, label: $label, project_id: $project_id, description: $description, blockchain: $blockchain, tag: $tag})';
                 $query .= 'WITH al MATCH (a:Address {address: $address}) MERGE (al)<-[:LABELED_BY]-(a)';
                 $this->client->run($query, $label->getAttributes());

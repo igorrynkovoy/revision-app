@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands\Syncers\Blockchain\Litecoin;
 
-use App\Exceptions\Services\Sync\Blockchain\Litecoin\FullSync\BlockAlreadySynced;
 use App\Services\Litecoin\Syncers\TransactionAddressesSync;
 use Denpa\Bitcoin\Client;
 use Illuminate\Console\Command;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class TransactionAddresses extends Command
@@ -25,7 +22,7 @@ class TransactionAddresses extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Index address to transactions relations';
 
 
     protected Client $wallet;
@@ -65,13 +62,13 @@ class TransactionAddresses extends Command
             DB::beginTransaction();
 
             try {
-                $insertedRows = $syncer->syncBlock($blockToSync, $chunk);
+                $syncer->syncBlock($blockToSync, $chunk);
             } catch (\Exception $exception) {
                 DB::rollBack();
                 throw $exception;
             }
 
-            $this->info(sprintf('Blocks synced in %s Rows: %s', (microtime(true) - $t), $insertedRows));
+            $this->info(sprintf('Blocks synced in %s', (microtime(true) - $t)));
             DB::commit();
             $blockToSync += $chunk;
         }

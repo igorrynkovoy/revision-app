@@ -22,7 +22,7 @@ class TransactionAddressesSync
     {
         $toBlock = $blockNumber + $chunk - 1;
         DB::insert('INSERT IGNORE INTO litecoin_transactions_addresses
-                select lto.address, lt.hash, lt.block_number from litecoin_transactions as lt
+                select CONCAT(lto.address, lt.hash) as id, lto.address, lt.hash, lt.block_number from litecoin_transactions as lt
                 left join litecoin_transaction_outputs as lto on lt.hash = lto.`transaction_hash`
                 where lt.block_number BETWEEN ? AND ?
                 union

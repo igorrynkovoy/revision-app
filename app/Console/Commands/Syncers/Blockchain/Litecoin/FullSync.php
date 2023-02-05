@@ -23,7 +23,7 @@ class FullSync extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Blockchain syncer';
 
 
     protected Client $wallet;

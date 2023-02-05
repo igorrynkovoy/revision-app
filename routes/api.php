@@ -21,13 +21,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/bootstrap', ['uses' => 'BootstrapController@getBootstrap']);
 Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function () {
     Route::get('/list', 'WorkspaceController@getList');
+    Route::post('/create', 'WorkspaceController@postCreate');
+    Route::post('/edit/{workspace}', 'WorkspaceController@postEdit');
 
-    Route::group(['prefix' => '/{workspace}/address-labels'], function () {
-        Route::get('/list', 'AddressLabelController@getList');
-        Route::post('/create', 'AddressLabelController@postCreate');
-        Route::post('/edit/{addressLabelID}', 'AddressLabelController@postEdit');
-        Route::post('/delete/{addressLabelID}', 'AddressLabelController@postDelete');
-        Route::post('/import-csv', 'AddressLabelController@postImportCSV');
+    Route::get('/{workspace}/details', 'WorkspaceController@getDetails');
+    Route::group(['prefix' => '/{workspace}/labels'], function () {
+        Route::get('/list', 'LabelController@getList');
+        Route::post('/create', 'LabelController@postCreate');
+        Route::post('/edit/{addressLabelID}', 'LabelController@postEdit');
+        Route::post('/delete/{addressLabelID}', 'LabelController@postDelete');
+        Route::post('/import-csv', 'LabelController@postImportCSV');
     });
 });
 

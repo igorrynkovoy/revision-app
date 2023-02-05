@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Workspace\AddressLabel;
+use App\Models\Workspace\Label;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Workspace extends Model
 {
-    public function addressLabels(): HasMany
+    public function labels(): HasMany
     {
-        return $this->hasMany(AddressLabel::class, 'workspace_id');
+        return $this->hasMany(Label::class, 'workspace_id');
     }
 
 }
