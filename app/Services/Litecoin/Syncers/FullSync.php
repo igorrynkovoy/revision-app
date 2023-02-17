@@ -66,7 +66,7 @@ class FullSync
         }
 
         // TODO: Sync only when normal sync, when syncing only latest blocks
-        //$this->transactionAddressSync->syncBlock($blockHeight);
+        $this->transactionAddressSync->syncBlock($blockHeight);
 
         DB::commit();
     }
@@ -102,38 +102,26 @@ class FullSync
             ];
         }
 
-        TransactionOutput::query()
+        /*TransactionOutput::query()
             ->getQuery()
-            ->insertOrIgnore($outputs);
+            ->insertOrIgnore($outputs);*/
+
         $isCoinbase = false;
-        $vinToPool = [];
         foreach ($vins as $index => $vin) {
             if (!empty(Arr::get($vin, 'coinbase'))) {
                 $isCoinbase = true;
-                continue;
+                break;
+                //continue; // UNCOMMENT ME
             }
 
-            $updated = TransactionOutput::query()->getQuery()
+            /*$updated = TransactionOutput::query()->getQuery()
                 ->where('transaction_hash', $vin['txid'])
                 ->where('index', $vin['vout'])
                 ->update([
                     'input_transaction_hash' => $txid,
                     'input_index' => $index
-                ]);
-
-            if (!$updated) {
-                $vinToPool[] = [
-                    'input_transaction_hash' => $txid,
-                    'input_index' => $index,
-                    'output_transaction_hash' => $vin['txid'],
-                    'output_index' => $vin['vout'],
-                    'input_block_number' => $blockHeight
-                ];
-            }
+                ]);*/
         }
-
-        DB::table('litecoin_transactions_inputs_pool')
-            ->insert($vinToPool);
 
         Transaction::query()->getQuery()
             ->insert([

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('workspace', function (Blueprint $table) {
+        Schema::create('workspaces', function (Blueprint $table) {
             $table->id();
             $table->string('title', 256);
             $table->timestamps();
