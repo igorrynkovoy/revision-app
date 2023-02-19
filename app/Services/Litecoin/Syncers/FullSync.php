@@ -102,25 +102,24 @@ class FullSync
             ];
         }
 
-        /*TransactionOutput::query()
+        TransactionOutput::query()
             ->getQuery()
-            ->insertOrIgnore($outputs);*/
+            ->insertOrIgnore($outputs);
 
         $isCoinbase = false;
         foreach ($vins as $index => $vin) {
             if (!empty(Arr::get($vin, 'coinbase'))) {
                 $isCoinbase = true;
-                break;
-                //continue; // UNCOMMENT ME
+                continue;
             }
 
-            /*$updated = TransactionOutput::query()->getQuery()
+            $updated = TransactionOutput::query()->getQuery()
                 ->where('transaction_hash', $vin['txid'])
                 ->where('index', $vin['vout'])
                 ->update([
                     'input_transaction_hash' => $txid,
                     'input_index' => $index
-                ]);*/
+                ]);
         }
 
         Transaction::query()->getQuery()
