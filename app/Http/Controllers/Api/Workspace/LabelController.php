@@ -28,7 +28,7 @@ class LabelController extends Controller
             $labels->where('type', $request->get('type'));
         }
         if ($request->filled('key')) {
-            $labels->where('key', $request->get('key'));
+            $labels->where('key', 'like', '%'. $request->get('key') . '%');
         }
         if ($request->filled('tag')) {
             $labels->where('tag', $request->get('tag'));

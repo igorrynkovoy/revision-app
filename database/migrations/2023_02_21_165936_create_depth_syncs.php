@@ -27,7 +27,7 @@ return new class extends Migration {
             $table->unsignedTinyInteger('address_synced')->default(0);
             $table->unsignedTinyInteger('processed')->default(0);
             $table->dateTime('processed_at')->nullable();
-            $table->string('processed_code', 32);
+            $table->string('processed_code', 32)->nullable();
 
             $table->timestamps();
 
