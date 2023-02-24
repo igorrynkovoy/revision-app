@@ -19,7 +19,7 @@ class TransactionsController extends Controller
             ->leftJoin('litecoin_transactions_addresses', 'litecoin_transactions.hash', '=', 'litecoin_transactions_addresses.transaction_hash')
             ->where('litecoin_transactions_addresses.address', $address)
             ->orderBy('litecoin_transactions_addresses.block_number', $order)
-            ->orderBy('litecoin_transactions.id', $order)
+            ->orderBy('litecoin_transactions_addresses.transaction_hash')
             ->forPage($page, $limit);
 
         if($request->boolean('with_outputs')) {
