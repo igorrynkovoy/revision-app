@@ -43,6 +43,14 @@ Route::group(['prefix' => 'blockchain', 'namespace' => 'Blockchain'], function (
     });
 
     Route::group(['prefix' => 'litecoin', 'namespace' => 'Litecoin'], function () {
+        Route::group(['prefix' => 'explorer', 'namespace' => 'Explorer'], function () {
+            Route::group(['prefix' => 'addresses'], function () {
+                Route::get('/details/{address}', 'AddressesController@getDetails');
+            });
+            Route::group(['prefix' => 'transactions'], function () {
+                Route::get('/address/{address}', 'TransactionsController@getByAddress');
+            });
+        });
         Route::group(['prefix' => 'address'], function () {
             Route::get('/list', 'AddressController@getList');
         });
