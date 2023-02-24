@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Blockchain\Litecoin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Blockchain\Litecoin\Transactions\ListRequest;
 use App\Http\Resources\Blockchain\Litecoin\AddressResource;
 use App\Http\Resources\Blockchain\Litecoin\TransactionResource;
 use App\Models\Blockchain\Litecoin\Address;
@@ -11,18 +12,17 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function getList(Request $request)
+    public function getList(ListRequest $request)
     {
         $limit = min(100, $request->get('limit', 100));
         $page = max(1, $request->get('page', 1));
 
         $order = $request->get('order', 'desc');
-        $sortBy = $request->get('sort_by', 'id');
-        $sortBy = in_array($sortBy, ['block_number', 'hash']) ? $sortBy : 'block_number';
+        $orderBy = $request->get('order_by', 'block_number');
 
         $transactions = Transaction::query()
             ->forPage($page, $limit)
-            ->orderBy($sortBy, $order);
+            ->orderBy($orderBy, $order);
 
         if ($request->filled('block_number')) {
             $transactions->where('block_number', $request->get('block_number'));

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Blockchain;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Blockchain\DepthSync\ListRequest;
 use App\Http\Resources\Blockchain\DepthSyncResource;
 use \App\Models\Blockchain;
 use App\Services\Sync\DepthSync\Creator;
@@ -11,20 +12,29 @@ use Illuminate\Validation\Rule;
 
 class DepthSyncController extends Controller
 {
-    public function getList(Request $request)
+    public function getList(ListRequest $request)
     {
-        $limit = min(30, $request->get('limit', 10));
+        $limit = min(100, $request->get('limit', 100));
+        $page = max(1, $request->get('page', 1));
         $order = $request->get('order', 'desc');
-        $sortBy = $request->get('sort_by', 'id');
-        $sortBy = in_array($sortBy, ['id', 'address', 'child_addresses', 'current_depth', 'processed', 'processed_at']) ? $sortBy : 'id';
+        $orderBy = $request->get('order_by', 'id');
+        $orderBy = in_array($orderBy, ['id', 'address', 'child_addresses', 'current_depth', 'processed', 'processed_at']) ? $orderBy : 'id';
 
         $list = Blockchain\DepthSync::query()
             ->whereNull('root_sync_id')
-            ->orderBy($sortBy, $order)
-            ->limit($limit);
+            ->orderBy($orderBy, $order)
+            ->forPage($page, $limit);
 
         if ($request->filled('address')) {
             $list->where('address', $request->get('address'));
+        }
+
+        if ($request->filled('processed')) {
+            $list->where('processed', $request->boolean('processed'));
+        }
+
+        if ($request->filled('direction')) {
+            $list->where('direction', (string)$request->get('direction'));
         }
 
         $list = $list->get();
