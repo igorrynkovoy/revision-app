@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Workspace;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Workspace\Label\CreateRequest;
+use App\Http\Requests\Workspace\Label\ImportCSVRequest;
 use App\Http\Requests\Workspace\Label\UpdateRequest;
 use App\Http\Resources\Workspaces\LabelResource;
 use App\Models\Workspace;
@@ -65,9 +66,10 @@ class LabelController extends Controller
         return $resource;
     }
 
-    public function postImportCSV(Workspace $workspace, Request $request)
+    public function postImportCSV(Workspace $workspace, ImportCSVRequest $request)
     {
         $recreateDuplicates = (bool)$request->get('recreate_duplicates', false);
+
         $importer = new ImportCSV($workspace, $request->file('csv'));
         $importer->replaceDuplicates($recreateDuplicates);
         $importer->save();
