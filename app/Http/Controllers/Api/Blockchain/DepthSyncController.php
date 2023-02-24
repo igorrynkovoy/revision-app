@@ -53,6 +53,7 @@ class DepthSyncController extends Controller
     {
         $this->validate($request, [
             'address' => 'required',
+            'blockchain' => 'required|in:LTC',
             'max_depth' => [
                 'required',
                 'integer',
@@ -68,6 +69,7 @@ class DepthSyncController extends Controller
         ]);
 
         $address = $request->get('address');
+        $blockchain = $request->get('blockchain');
         $depth = $request->get('max_depth');
         $direction = $request->get('direction');
         $limitAddresses = $request->get('limit_address');
