@@ -25,6 +25,8 @@ class ListRequest extends FormRequest
     public function rules()
     {
         return [
+            'page' => 'integer|min:1',
+            'limit' => 'integer|min:1|max:100',
             'order' => 'string|in:asc,desc',
             'order_by' => 'string|in:id,address,child_addresses,current_depth,processed,processed_at',
             'address' => 'string|max:128',

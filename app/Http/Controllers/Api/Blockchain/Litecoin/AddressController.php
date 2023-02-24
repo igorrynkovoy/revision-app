@@ -12,12 +12,14 @@ class AddressController extends Controller
 {
     public function getList(ListRequest $request)
     {
-        $limit = min(100, $request->get('limit', 10));
+        $limit = min(100, $request->get('limit', 100));
+        $page = max(1, $request->get('page', 1));
+
         $order = $request->get('order', 'desc');
         $orderBy = $request->get('order_by', 'id');
 
         $addresses = Address::query()
-            ->limit($limit)
+            ->forPage($page, $limit)
             ->orderBy($orderBy, $order);
 
         if ($request->filled('address')) {
