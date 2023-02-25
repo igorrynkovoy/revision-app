@@ -64,7 +64,7 @@ class DepthSyncController extends Controller
                 'required',
                 Rule::in(Blockchain\DepthSync::getDirectionsList())
             ],
-            'limit_address' => 'required|integer|min:1|max:32',
+            'limit_addresses' => 'required|integer|min:1|max:32',
             'limit_transactions' => 'required|integer|min:1|max:128',
         ]);
 
@@ -72,7 +72,7 @@ class DepthSyncController extends Controller
         $blockchain = $request->get('blockchain');
         $depth = $request->get('max_depth');
         $direction = $request->get('direction');
-        $limitAddresses = $request->get('limit_address');
+        $limitAddresses = $request->get('limit_addresses');
         $limitTransactions = $request->get('limit_transactions');
 
         /** @var Blockchain\Litecoin\Address $address */
