@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Syncers\Blockchain\Litecoin;
 
-use App\Services\Litecoin\Syncers\TransactionAddressesSync;
+use App\Services\Litecoin\Syncers\BlockAddressesToTransactions;
 use Denpa\Bitcoin\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +47,7 @@ class TransactionAddresses extends Command
             exit;
         }
 
-        $syncer = new TransactionAddressesSync();
+        $syncer = new BlockAddressesToTransactions();
 
         $blockToSync = $fromBlock ?? $syncer->getLastSyncedBlockNumber() + 1;
         $toBlock = $toBlock ?? $syncer->getMaximumBlockNumber();

@@ -20,12 +20,12 @@ use Illuminate\Support\Facades\Log;
 
 class FullSync
 {
-    private TransactionAddressesSync $transactionAddressSync;
+    private BlockAddressesToTransactions $transactionAddressSync;
 
     public function __construct()
     {
         $this->client = new Client(config('services.litecoin-wallet.host'));
-        $this->transactionAddressSync = new TransactionAddressesSync();
+        $this->transactionAddressSync = new BlockAddressesToTransactions();
     }
 
     public function isBlockSynced(int $blockNumber): bool

@@ -4,7 +4,7 @@ namespace App\Services\Litecoin\Syncers;
 
 use Illuminate\Support\Facades\DB;
 
-class TransactionAddressesSync
+class BlockAddressesToTransactions
 {
     public function getLastSyncedBlockNumber(): int
     {
