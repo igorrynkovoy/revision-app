@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Services\Litecoin\Syncers;
+namespace App\Services\Litecoin\Syncers\ByAddress;
 
 use App\Exceptions\Services\Sync\Blockchain\Litecoin\AddressSyncer\AddressTransactionsLimit;
 use App\Models\Blockchain\Litecoin;
 use App\Models\Blockchain\Litecoin\Address;
 use App\Services\DataServices\Blockchain\BlockCypher;
-use App\Services\Litecoin\Syncers\Address\Fresh;
-use App\Services\Litecoin\Syncers\Address\Full;
+use App\Services\DataServices\Blockchain\RemoteApp\RemoteAPI;
+use App\Services\Litecoin\Syncers\ByAddress\Address\Fresh;
+use App\Services\Litecoin\Syncers\ByAddress\Address\Full;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
@@ -26,6 +27,7 @@ class AddressSyncer
     {
         $this->address = $address;
         $this->blockCypher = new BlockCypher('ltc');
+        $this->remoteAPI = new RemoteAPI(RemoteAPI::BLOCKCHAIN_LITECOIN);
     }
 
     public function getAddress(): Litecoin\Address
@@ -40,17 +42,12 @@ class AddressSyncer
         $this->address->sync_status_code = 'ok';
         $this->address->save();
 
-        $data = $this->blockCypher->getAddress($this->address->address, ['confirmations' => 1, 'limit' => 2000]);
+        $data = $this->remoteAPI->getAddressDetails($this->address->address);
 
-        $this->address->blockchain_transactions = Arr::get($data, 'final_n_tx', NULL);
-        $this->address->blockchain_last_tx_block = Arr::get($data, 'txrefs.0.block_height', NULL);
+        $this->address->blockchain_transactions = Arr::get($data, 'total_transactions');
+        $this->address->blockchain_last_tx_block = Arr::get($data, 'last_block');
+        $this->address->blockchain_first_tx_block = Arr::get($data, 'first_block');
         $this->address->blockchain_data_updated_at = Carbon::now();
-
-        if ($this->address->blockchain_transactions < 2000) {
-            if (!empty($data['txrefs'])) {
-                $this->address->blockchain_first_tx_block = (int)Arr::last($data['txrefs'])['block_height'];
-            }
-        }
 
         $this->address->save();
     }
@@ -65,7 +62,7 @@ class AddressSyncer
         }
 
         if ($this->address->blockchain_transactions > 30000) {
-            throw new AddressTransactionsLimit('Address ' . $this->address->address . ' has too many transactions. Total: ' . $this->address->blockchain_transactions);
+            //throw new AddressTransactionsLimit('Address ' . $this->address->address . ' has too many transactions. Total: ' . $this->address->blockchain_transactions);
         }
 
         $syncMode = empty($this->address->blockchain_first_tx_block) || $this->address->synced_first_block_number !== $this->address->blockchain_first_tx_block ? self::SYNC_STEP_MODE_FULL : self::SYNC_STEP_MODE_FRESH;

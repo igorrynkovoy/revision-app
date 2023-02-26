@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Litecoin\Syncers\Address;
+namespace App\Services\Litecoin\Syncers\ByAddress\Address;
 
 use App\Models\Blockchain\Litecoin;
 use Illuminate\Database\QueryException;
@@ -8,38 +8,76 @@ use Illuminate\Support\Facades\DB;
 
 class Full extends Base
 {
+    private int $currentPage = 1;
+    private int $sinceBlock;
+
     public function sync()
     {
+        $this->sinceBlock = $this->address->synced_block_number > 0 ? $this->address->synced_block_number : $this->address->blockchain_first_tx_block;
+
         do {
             DB::beginTransaction();
             $break = $this->syncStep();
             DB::commit();
 
-            $this->address->refresh();
+            //$this->address->refresh();
 
             dump(sprintf(
-                'Last synced block: %s. First synced block: %s. Last TX: %s. Total TXs: %s.',
+                'Last synced block: %s. Last synced block: %s. Last TX: %s. Total TXs: %s.',
                 $this->address->synced_block_number,
-                $this->address->synced_first_block_number,
+                $this->address->synced_last_block_number,
                 $this->address->last_transaction_hash,
                 $this->address->synced_transactions
             ));
 
             //$this->address->synced_first_block_number === $this->address->blockchain_first_tx_block;
         } while (!$break);
+        dd();
     }
 
     private function syncStep()
     {
         dump('Full sync step');
-        $perPage = 50;
+        $perPage = 10;
+        dump('Sync parameters', $this->address->address, $this->sinceBlock, $this->currentPage, $perPage);
+        $list = $this->getTxs($this->address->address, $this->sinceBlock, $this->currentPage, $perPage);
+        $list = $list['data'];
 
-        $beforeBlock = $this->address->synced_first_block_number;
+        if(empty($list)) {
+            dump('End list finished');
+            return true;
+        }
+
+        $savedTransactions = 0;
+
+        foreach ($list as $txData) {
+            dump((int)$txData['block_number'], $txData['hash']);
+            try {
+                $this->saveTx($txData);
+                $savedTransactions++;
+            } catch (QueryException $e) {
+                if ($e->errorInfo[1] === 1062) {
+                    dump('Tx has duplicated: ' . $txData['hash']);
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
+
+        if(count($list) === $perPage) {
+            $this->currentPage++;
+            return false;
+        } else {
+            return true;
+        }
+
+        return;
+
         $list = $this->getList($this->address->address, $beforeBlock > 0 ? $beforeBlock + 1 : $beforeBlock, null, $perPage);
 
         $maxBlockNumber = null;
         $minBlockNumber = null;
-        $savedTransactions = 0;
         foreach ($list as $txData) {
             dump((int)$txData['block_height']);
             $maxBlockNumber = (int)$txData['block_height'] > $maxBlockNumber ? (int)$txData['block_height'] : $maxBlockNumber;

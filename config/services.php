@@ -32,6 +32,13 @@ return [
     ],
 
 
+    'remote-revision' => [
+        'host' => env('REMOTE_REVISION_API_HOST'),
+        'api' => [
+            'key' => env('REMOTE_REVISION_API_KEY')
+        ]
+    ],
+
     'etherscan' => [
         'key' => env('ETHERSCAN_KEY')
     ],

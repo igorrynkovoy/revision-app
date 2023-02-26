@@ -21,6 +21,7 @@ class TransactionOutputResource extends JsonResource
             'id' => $this->id,
             'address' => $this->address,
             'transaction_hash' => $this->transaction_hash,
+            'block_number' => $this->block_number,
             'index' => $this->index,
             'input_transaction_hash' => $this->input_transaction_hash,
             'input_index' => $this->input_index,

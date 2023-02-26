@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Litecoin\Syncers\Address;
+namespace App\Services\Litecoin\Syncers\ByAddress\Address;
 
 use App\Models\Blockchain\Litecoin;
 use App\Services\DataServices\Blockchain\BlockCypher\Transaction;
