@@ -14,6 +14,21 @@
             "out_file": "storage/logs/litecoin.full-sync.log",
             "merge_logs": true,
             "watch": false
+        },
+        {
+            "name": "queue.work",
+            "exec_interpreter": "php",
+            "exec_mode": "fork_mode",
+            "script": "artisan",
+            "args": [
+                "queue:work"
+            ],
+            "autorestart": true,
+            "restart_delay": 10000,
+            "error_file": "storage/logs/queue.work.log",
+            "out_file": "storage/logs/queue.work.log",
+            "merge_logs": true,
+            "watch": false
         }
     ]
 }
