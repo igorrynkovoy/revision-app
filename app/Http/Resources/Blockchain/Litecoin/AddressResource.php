@@ -23,6 +23,7 @@ class AddressResource extends JsonResource
             'synced' => [
                 'block_number' => $this->synced_block_number,
                 'first_block_number' => $this->synced_first_block_number,
+                'last_block_number' => $this->synced_last_block_number,
                 'transactions' => $this->synced_transactions,
                 'last_sync_at' => \Dates::toTimestamp($this->last_sync_at),
                 'last_transaction_hash' => $this->last_transaction_hash

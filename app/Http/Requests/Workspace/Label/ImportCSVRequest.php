@@ -25,7 +25,7 @@ class ImportCSVRequest extends FormRequest
     public function rules()
     {
         return [
-            'recreate_duplicates' => 'boolean',
+            'recreate_duplicates' => '', // TODO: Should be boolean
             'csv' => 'required|file'
         ];
     }
