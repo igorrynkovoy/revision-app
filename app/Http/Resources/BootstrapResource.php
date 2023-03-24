@@ -15,6 +15,7 @@ class BootstrapResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'socket_domain' => config('services.socket.domain'),
             'server_time' => time()
         ];
     }

@@ -41,6 +41,5 @@ class ProcessDepthSync implements ShouldQueue
 
         $service = new Service();
         $service->handleRootOnDepth($rootSync, $this->depth);
-
     }
 }

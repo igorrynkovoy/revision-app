@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Blockchain;
 
+use App\Events\DepthSync\Created;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blockchain\DepthSync\ListRequest;
 use App\Http\Resources\Blockchain\DepthSyncResource;
@@ -45,7 +46,10 @@ class DepthSyncController extends Controller
 
     public function getDepthSync(Blockchain\DepthSync $depthSync, ?int $depth = null)
     {
-        // TODO: Add children
+        $depthSync->load(['children' => function ($query) {
+            $query->orderBy('current_depth', 'asc');
+            return $query;
+        }]);
         return new DepthSyncResource($depthSync);
     }
 
@@ -64,7 +68,7 @@ class DepthSyncController extends Controller
                 'required',
                 Rule::in(Blockchain\DepthSync::getDirectionsList())
             ],
-            'limit_addresses' => 'required|integer|min:1|max:32',
+            'limit_addresses' => 'required|integer|min:1|max:50',
             'limit_transactions' => 'required|integer|min:1|max:128',
         ]);
 
@@ -80,6 +84,8 @@ class DepthSyncController extends Controller
 
         $service = new Creator($address);
         $depthSync = $service->create($depth, $limitAddresses, $limitTransactions, $direction);
+
+        event(new Created($depthSync));
 
         return new DepthSyncResource($depthSync);
     }

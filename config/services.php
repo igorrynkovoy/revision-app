@@ -31,6 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'socket' => [
+        'domain' => env('SOCKET_DOMAIN')
+    ],
 
     'remote-revision' => [
         'host' => env('REMOTE_REVISION_API_HOST'),

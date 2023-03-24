@@ -5,7 +5,7 @@ namespace App\Jobs\Blockchain\Litecoin;
 use App\Exceptions\Services\Sync\Blockchain\Litecoin\AddressSyncer\AddressNotFound;
 use App\Exceptions\Services\Sync\Blockchain\Litecoin\AddressSyncer\AddressTransactionsLimit;
 use App\Models\Blockchain\Litecoin\Address;
-use App\Services\Litecoin\Syncers\AddressSyncer;
+use App\Services\Litecoin\Syncers\ByAddress\AddressSyncer;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

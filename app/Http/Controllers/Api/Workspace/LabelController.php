@@ -68,6 +68,7 @@ class LabelController extends Controller
 
     public function postImportCSV(Workspace $workspace, ImportCSVRequest $request)
     {
+        \Log::info('Import', $request->all());
         $recreateDuplicates = (bool)$request->get('recreate_duplicates', false);
 
         $importer = new ImportCSV($workspace, $request->file('csv'));

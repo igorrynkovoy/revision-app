@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Blockchain\Litecoin\Address;
-use App\Services\Litecoin\Syncers\AddressSyncer;
+use App\Services\Litecoin\Syncers\ByAddress\AddressSyncer;
 use Illuminate\Console\Command;
 
 class PlayDebug extends Command

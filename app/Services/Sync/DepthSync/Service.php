@@ -2,6 +2,7 @@
 
 namespace App\Services\Sync\DepthSync;
 
+use App\Events\DepthSync\Updated;
 use App\Exceptions\Services\Sync\DepthSync\InterruptException;
 use App\Interfaces\Blockchain\Address\AddressEntity;
 use App\Models\Blockchain\DepthSync;
@@ -13,7 +14,7 @@ class Service
     public function create($address, int $depth, int $limitAddresses, int $limitTransactions): DepthSync
     {
         $creator = new Creator($address);
-        return $creator->create($depth, $limitAddresses, $limitTransactions);
+        return $creator->create($depth, $limitAddresses, $limitTransactions, DepthSync::DIRECTION_BOTH);
     }
 
     public function handleRootOnDepth(DepthSync $rootSync, int $depth)
@@ -68,5 +69,7 @@ class Service
         $depthSync->processed_code = $interruptCode ?? 'processed';
         $depthSync->child_addresses = $addressesList->count();
         $depthSync->save();
+
+        event(new Updated($depthSync));
     }
 }
