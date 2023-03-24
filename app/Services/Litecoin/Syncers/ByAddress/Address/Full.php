@@ -24,7 +24,7 @@ class Full
         $this->blockchain = new BlockchainLitecoin();
 
         if($this->blockchain->getSyncMode() === BlockchainLitecoin::SYNC_MODE_FULL) {
-            throw new \RuntimeException('Cannot use this clas in full sync mode');
+            throw new \RuntimeException('Cannot use this class in full sync mode');
         }
 
         $this->remoteAPI = $this->blockchain->getRemoteAPI();
