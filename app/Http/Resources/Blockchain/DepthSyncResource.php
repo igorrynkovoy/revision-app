@@ -23,6 +23,7 @@ class DepthSyncResource extends JsonResource
             'blockchain' => $this->blockchain,
             'address_value' => $this->address,
             'address' => new AddressResource($this->addressModel), // TODO: Implement eager loading
+            'parent_sync_id' => $this->parent_sync_id,
             'direction' => $this->direction,
             'child_addresses' => $this->child_addresses,
             'limit_addresses' => $this->limit_addresses,
