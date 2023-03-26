@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Blockchain;
 
+use App\Http\Resources\Blockchain\Litecoin\AddressResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -20,7 +21,8 @@ class DepthSyncResource extends JsonResource
         return  [
             'id' => $this->id,
             'blockchain' => $this->blockchain,
-            'address' => $this->address,
+            'address_value' => $this->address,
+            'address' => new AddressResource($this->addressModel), // TODO: Implement eager loading
             'direction' => $this->direction,
             'child_addresses' => $this->child_addresses,
             'limit_addresses' => $this->limit_addresses,

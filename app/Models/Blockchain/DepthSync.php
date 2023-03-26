@@ -36,6 +36,8 @@ class DepthSync extends Model
     const DIRECTION_RECIPIENT = 'recipient';
     const DIRECTION_SENDER = 'sender';
 
+    protected $casts = ['processed' => 'bool', 'address_synced' => 'bool'];
+
     public function isRoot(): bool
     {
         return is_null($this->root_sync_id);
@@ -43,13 +45,15 @@ class DepthSync extends Model
 
     public function addressModel(): BelongsTo
     {
-        return match ($this->blockchain) {
+        $relation = match ($this->blockchain) {
             Litecoin\Address::BLOCKCHAIN_SYMBOL => $this->belongsTo(Litecoin\Address::class, 'address', 'address'),
             Ethereum\Address::BLOCKCHAIN_SYMBOL => $this->belongsTo(Ethereum\Address::class, 'address', 'address'),
             default => function () {
                 throw new \RuntimeException('Invalid blockchain');
             }
         };
+
+        return $relation;
     }
 
     public function children(): HasMany
