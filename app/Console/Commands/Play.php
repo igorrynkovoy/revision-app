@@ -32,7 +32,7 @@ class Play extends Command
      */
     public function handle()
     {
-        $address = 'MATH1RbJUVYg6BGnQDWiBngeh9JURcV4da';
+        $address = 'ltc1qf5y6d95g5xkk9x9f7k5yxxuy06snle82jvwfpj';
         $this->runSync($address);
     }
 

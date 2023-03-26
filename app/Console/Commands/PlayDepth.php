@@ -55,7 +55,7 @@ class PlayDepth extends Command
             if (!$this->confirm(sprintf('Address: %s. Depth: %s.', $address->address, (int)$depth))) {
                 return;
             }
-            $depthSync = Blockchain\DepthSync::where('blockchain', 'LTC')->where('address', $address->address)->whereNull('root_sync_id')->first();
+            $depthSync = Blockchain\DepthSync::where('blockchain', 'LTC')->where('address', $address->address)->whereNull('root_sync_id')->orderBy('processed')->first();
             $service->handleRootOnDepth($depthSync, (int)$depth);
         }
 

@@ -40,8 +40,8 @@ class AddressSummary
             ->first();
 
         $this->address->blockchain_transactions = $data->total_transactions;
-        $this->address->blockchain_last_tx_block = $data->first_block;
-        $this->address->blockchain_first_tx_block = $data->last_block;
+        $this->address->blockchain_last_tx_block = $data->last_block;
+        $this->address->blockchain_first_tx_block = $data->first_block;
         $this->address->blockchain_data_updated_at = Carbon::now();
 
         $this->address->save();
