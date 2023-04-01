@@ -81,6 +81,9 @@ class DepthSyncController extends Controller
 
         /** @var Blockchain\Litecoin\Address $address */
         $address = Blockchain\Litecoin\Address::firstOrCreate(['address' => $address]);
+        if ($address->wasRecentlyCreated) {
+            $address = $address->fresh();
+        }
 
         $service = new Creator($address);
         $depthSync = $service->create($depth, $limitAddresses, $limitTransactions, $direction);
