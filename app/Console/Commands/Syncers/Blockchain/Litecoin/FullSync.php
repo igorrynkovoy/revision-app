@@ -28,7 +28,7 @@ class FullSync extends Command
 
     protected Client $wallet;
 
-    private \App\Services\Litecoin\Syncers\FullSync $fullSync;
+    private \App\Services\Litecoin\Syncers\Full\FullSync $fullSync;
 
     /**
      * Execute the console command.
@@ -46,7 +46,7 @@ class FullSync extends Command
             exit;
         }
 
-        $this->fullSync = new \App\Services\Litecoin\Syncers\FullSync();
+        $this->fullSync = new \App\Services\Litecoin\Syncers\Full\FullSync();
         $nextBlockToSync = $fromBlock;
         $syncedBlockDetected = false;
 
