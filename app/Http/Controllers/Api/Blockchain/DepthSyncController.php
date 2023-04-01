@@ -82,6 +82,7 @@ class DepthSyncController extends Controller
         /** @var Blockchain\Litecoin\Address $address */
         $address = Blockchain\Litecoin\Address::firstOrCreate(['address' => $address]);
         if ($address->wasRecentlyCreated) {
+            // TODO: Это ведь точно работа репозитория
             $address = $address->fresh();
         }
 

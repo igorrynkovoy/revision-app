@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Services\Litecoin\Syncers;
+namespace App\Services\Litecoin\Syncers\Full;
 
 use App\Models\Blockchain\Litecoin\Transaction;
 use App\Models\Blockchain\Litecoin\TransactionOutput;
+use App\Services\Litecoin\Syncers\BlockAddressesToTransactions;
 use BitWasp\Bitcoin\Address\PayToPubKeyHashAddress;
 use BitWasp\Bitcoin\Crypto\EcAdapter\Impl\PhpEcc\Key\PublicKey;
 use BitWasp\Bitcoin\Key\Factory\PublicKeyFactory;
