@@ -40,6 +40,6 @@ class Created implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new Channel(empty($this->rootSyncId) ? 'depth.sync.list' : 'depth.sync.' . $this->rootSyncId);
+        return new Channel(empty($this->rootSyncId) ? 'depth.sync.general' : 'depth.sync.' . $this->rootSyncId);
     }
 }

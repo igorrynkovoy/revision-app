@@ -55,15 +55,13 @@ class LabelController extends Controller
         $label->type = $request->get('type');
         $label->key = $request->get('key');
         $label->label = $request->get('label');
-        $label->description = $request->get('description');
+        $label->description = (string)$request->get('description');
         $label->blockchain = $request->get('blockchain');
         $label->tag = $request->get('tag');
         $label->workspace_id = $workspace->id;
         $label->save();
 
-        $resource = new LabelResource($label);
-
-        return $resource;
+        return new LabelResource($label);
     }
 
     public function postImportCSV(Workspace $workspace, ImportCSVRequest $request)
@@ -112,8 +110,6 @@ class LabelController extends Controller
 
         $label->update($request->only(['key', 'label', 'description', 'blockchain', 'tag']));
 
-        $response = new LabelResource($label);
-
-        return response()->json($response);
+        return new LabelResource($label);
     }
 }

@@ -10,11 +10,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Updated implements ShouldBroadcastNow
+class Deleted implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $depthSync;
+    public $depthSyncId;
     private $rootSyncId;
 
     /**
@@ -22,15 +22,15 @@ class Updated implements ShouldBroadcastNow
      *
      * @return void
      */
-    public function __construct(DepthSync $depthSync)
+    public function __construct($depthSyncId, $rootSyncId = null)
     {
-        $this->depthSync = (new DepthSyncResource($depthSync))->resolve();
-        $this->rootSyncId = $depthSync->root_sync_id;
+        $this->depthSyncId = $depthSyncId;
+        $this->rootSyncId = $rootSyncId;
     }
 
     public function broadcastAs()
     {
-        return 'depth.sync.updated';
+        return 'depth.sync.deleted';
     }
 
     /**

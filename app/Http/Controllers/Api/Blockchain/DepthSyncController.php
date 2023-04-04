@@ -8,6 +8,7 @@ use App\Http\Requests\Blockchain\DepthSync\ListRequest;
 use App\Http\Resources\Blockchain\DepthSyncResource;
 use \App\Models\Blockchain;
 use App\Services\Sync\DepthSync\Creator;
+use App\Services\Sync\DepthSync\Delete;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -96,6 +97,9 @@ class DepthSyncController extends Controller
 
     public function postDelete(Blockchain\DepthSync $depthSync)
     {
-        dd($depthSync);
+        $service = new Delete($depthSync);
+        $service->deleteAll();
+
+        return response()->json(['success' => true]);
     }
 }

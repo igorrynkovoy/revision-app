@@ -42,7 +42,7 @@ class Label extends Model
             'type' => 'required|string|in:' . implode(',', [self::TYPE_ADDRESS, self::TYPE_TRANSACTION]),
             'key' => 'required|string|min:8|max:256',
             'label' => 'string|max:256',
-            'description' => 'string|max:512',
+            'description' => 'nullable|string|max:512',
             'blockchain' => 'required|string|in:LTC,ETH',
             'tag' => 'string|max:64'
         ];
