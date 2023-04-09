@@ -3,7 +3,6 @@
 namespace App\Services\Litecoin;
 
 use App\Models\Blockchain\Litecoin\Address;
-use App\Models\Blockchain\Litecoin\Transaction;
 use App\Services\DataServices\Blockchain\RemoteApp\RemoteAPI;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -26,6 +25,8 @@ class AddressSummary
         } else {
             $this->remoteMode();
         }
+
+        return $this->address;
     }
 
     private function fullMode()

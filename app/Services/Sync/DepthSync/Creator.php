@@ -37,6 +37,8 @@ class Creator
         $depthSync->max_depth = $depth;
         $depthSync->current_depth = 0;
         $depthSync->direction = $direction;
+        $depthSync->status = DepthSync::STATUS_PENDING;
+        $depthSync->status_code = 'created';
         $depthSync->address_synced = $this->isAddressSynced();
         $depthSync->save();
 
@@ -54,8 +56,16 @@ class Creator
     {
         if ($depthSync->address_synced) {
             dispatch(new ProcessDepthSync($depthSync->id, $depthSync->current_depth));
+
+            $depthSync->status = DepthSync::STATUS_SYNCED;
+            $depthSync->status_code = 'synced';
+            $depthSync->save();
         } else {
             dispatch(new SyncAddress($this->address->address));
+
+            $depthSync->status = DepthSync::STATUS_SYNCING;
+            $depthSync->status_code = 'sync_jobs_created';
+            $depthSync->save();
         }
     }
 }

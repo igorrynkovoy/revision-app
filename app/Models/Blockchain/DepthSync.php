@@ -18,12 +18,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property integer root_sync_id
  * @property integer parent_sync_id
  * @property string direction
+ * @property string status
+ * @property string status_code
  * @property integer limit_addresses
  * @property integer limit_transactions
  * @property integer max_depth
  * @property integer current_depth
+ * @property integer active_depth
  * @property bool address_synced
  * @property bool processed
+ * @property bool stop_sync
  * @property Carbon processed_at
  * @property string processed_code
  * @property Carbon created_at
@@ -32,11 +36,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class DepthSync extends Model
 {
-    const DIRECTION_BOTH = 'both';
-    const DIRECTION_RECIPIENT = 'recipient';
-    const DIRECTION_SENDER = 'sender';
+    public const DIRECTION_BOTH = 'both';
+    public const DIRECTION_RECIPIENT = 'recipient';
+    public const DIRECTION_SENDER = 'sender';
 
-    protected $casts = ['processed' => 'bool', 'address_synced' => 'bool'];
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_SYNCING = 'syncing';
+    public const STATUS_INTERRUPTED = 'interrupted';
+    public const STATUS_SYNCED = 'synced';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_BROKEN = 'broken';
+
+    protected $casts = ['processed' => 'bool', 'stop_sync' => 'bool', 'address_synced' => 'bool'];
 
     public function isRoot(): bool
     {

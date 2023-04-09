@@ -42,9 +42,8 @@ class OnAddressSynced implements ShouldQueue
         if (!$address) {
             throw new AddressNotFound('Address ' . $this->addressValue . ' not found.');
         }
-
+        dump('Address synced ' . $address->address);
         $depthOnSync = new DepthSync\OnAddressSynced($address);
-        $depthOnSync->markDepthSyncAddresses();
-        $depthOnSync->continueDepthSyncs();
+        $depthOnSync->handle();
     }
 }

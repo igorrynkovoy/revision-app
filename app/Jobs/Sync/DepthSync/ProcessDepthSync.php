@@ -39,6 +39,16 @@ class ProcessDepthSync implements ShouldQueue
         /** @var DepthSync $rootSync */
         $rootSync = DepthSync::find($this->rootDepthSyncId);
 
+        if (!$rootSync) {
+            \Log::debug(sprintf('%s job canceled. Depth sync with ID#%s not found.', static::class, $this->rootDepthSyncId));
+            return;
+        }
+
+        if($rootSync->stop_sync) {
+            \Log::debug(sprintf('%s job canceled. Depth sync #%s stop_sync = true.', static::class, $this->rootDepthSyncId));
+            return;
+        }
+
         $service = new Service();
         $service->handleRootOnDepth($rootSync, $this->depth);
     }

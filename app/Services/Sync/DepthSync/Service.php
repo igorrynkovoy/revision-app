@@ -36,12 +36,21 @@ class Service
         foreach ($children as $depthSync) {
             $this->handle($depthSync);
         }
+
+        $rootSync->active_depth = $depth;
+        $rootSync->save();
+        event(new Updated($rootSync));
     }
 
     private function handle(DepthSync $depthSync)
     {
+        if ($depthSync->status === DepthSync::STATUS_INTERRUPTED) {
+            dump(sprintf('Depth sync %s interrupted with code %s', $depthSync->id, $depthSync->status_code));
+            return;
+        }
+
         // TODO: If all are synced, maybe rerun job to go deeper?
-        if ($depthSync->processed) {
+        if ($depthSync->status === DepthSync::STATUS_COMPLETED) {
             dump(sprintf('Depth sync %s has been already processed', $depthSync->id));
             return;
         }
@@ -64,6 +73,8 @@ class Service
             dump($exception->getMessage());
         }
 
+        $depthSync->status = DepthSync::STATUS_COMPLETED;
+        $depthSync->status_code = 'depth_completed';
         $depthSync->processed_at = Carbon::now();
         $depthSync->processed = true;
         $depthSync->processed_code = $interruptCode ?? 'processed';
