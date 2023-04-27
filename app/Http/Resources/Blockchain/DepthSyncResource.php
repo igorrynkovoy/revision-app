@@ -33,7 +33,7 @@ class DepthSyncResource extends JsonResource
             'max_depth' => $this->max_depth,
             'current_depth' => $this->current_depth,
             'active_depth' => $this->active_depth,
-            'stop_sync' => $this->stop_sync,
+            //'stop_sync' => $this->stop_sync,
             'processed' => $this->processed,
             'processed_code' => $this->processed_code,
             'created_at' => \Dates::toTimestamp($this->created_at),

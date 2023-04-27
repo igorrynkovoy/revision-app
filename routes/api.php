@@ -25,6 +25,16 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
     Route::post('/edit/{workspace}', 'WorkspaceController@postEdit');
 
     Route::get('/{workspace}/details', 'WorkspaceController@getDetails');
+    Route::group(['prefix' => '/{workspace}/boards'], function () {
+        Route::get('/list', 'BoardsController@getList');
+        Route::post('/create', 'BoardsController@postCreate');
+        Route::post('/update/{board}', 'BoardsController@postUpdate')->scopeBindings();
+
+        Route::group(['prefix' => '/{board}'], function () {
+            Route::get('/', 'BoardsController@getBoard');
+            Route::get('/items', 'Boards\ItemsController@getItems');
+        })->scopeBindings();
+    });
     Route::group(['prefix' => '/{workspace}/labels'], function () {
         Route::get('/list', 'LabelController@getList');
         Route::post('/create', 'LabelController@postCreate');

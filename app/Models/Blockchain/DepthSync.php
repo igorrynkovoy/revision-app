@@ -6,6 +6,7 @@ use App\Interfaces\Blockchain\Address\AddressEntity;
 use App\Models\Blockchain\Litecoin;
 use App\Models\Blockchain\Ethereum;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon created_at
  * @property Carbon updated_at
  * @property AddressEntity addressModel
+ * @property Collection children
  */
 class DepthSync extends Model
 {
