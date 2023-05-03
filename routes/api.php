@@ -25,6 +25,16 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
     Route::post('/edit/{workspace}', 'WorkspaceController@postEdit');
 
     Route::get('/{workspace}/details', 'WorkspaceController@getDetails');
+
+    Route::group(['prefix' => '/boards', 'namespace' => 'Boards'], function () {
+        Route::group(['prefix' => '/layouts'], function () {
+            Route::get('/list', 'LayoutsController@getList');
+            Route::post('/create', 'LayoutsController@postCreate');
+            Route::post('/edit/{boardLayout}', 'LayoutsController@postEdit');
+            Route::post('/delete/{boardLayout}', 'LayoutsController@postDelete');
+        });
+    });
+
     Route::group(['prefix' => '/{workspace}/boards'], function () {
         Route::get('/list', 'BoardsController@getList');
         Route::post('/create', 'BoardsController@postCreate');

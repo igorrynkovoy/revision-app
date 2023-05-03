@@ -47,6 +47,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->firstOrFail();
         });
 
+        Route::bind('boardLayout', function ($value) {
+            return Workspace\Board\BoardLayout::query()
+                ->where('id', $value)
+                ->firstOrFail();
+        });
+
         Route::bind('workspace', function ($value) {
             return Workspace::query()
                 ->findOrFail($value);
