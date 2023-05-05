@@ -32,6 +32,7 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
             Route::post('/create', 'LayoutsController@postCreate');
             Route::post('/edit/{boardLayout}', 'LayoutsController@postEdit');
             Route::post('/delete/{boardLayout}', 'LayoutsController@postDelete');
+            Route::get('/{boardLayout}', 'LayoutsController@getLayout');
         });
     });
 

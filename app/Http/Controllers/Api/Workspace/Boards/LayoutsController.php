@@ -21,6 +21,11 @@ class LayoutsController extends Controller
         return LayoutLightResource::collection($list);
     }
 
+    public function getLayout(Workspace\Board\BoardLayout $layout)
+    {
+        return new LayoutResource($layout);
+    }
+
     public function postCreate(CreateRequest $request)
     {
         $board = Workspace\Board\Board::findOrFail($request->get('board_id'));
