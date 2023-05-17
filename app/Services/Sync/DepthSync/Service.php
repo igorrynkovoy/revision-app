@@ -5,6 +5,7 @@ namespace App\Services\Sync\DepthSync;
 use App\Events\DepthSync\Updated;
 use App\Exceptions\Services\Sync\DepthSync\InterruptException;
 use App\Interfaces\Blockchain\Address\AddressEntity;
+use App\Jobs\Sync\DepthSync\FinalizeDepthSync;
 use App\Models\Blockchain\DepthSync;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -39,6 +40,11 @@ class Service
 
         $rootSync->active_depth = $depth;
         $rootSync->save();
+
+        if ($rootSync->active_depth === $rootSync->max_depth) {
+            dispatch(new FinalizeDepthSync($rootSync->id));
+        }
+
         event(new Updated($rootSync));
     }
 

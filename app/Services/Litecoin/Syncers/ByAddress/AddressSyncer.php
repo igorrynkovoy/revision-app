@@ -2,14 +2,13 @@
 
 namespace App\Services\Litecoin\Syncers\ByAddress;
 
+use App\Events\Blockchain\Litecoin\Address\Updated;
 use App\Models\Blockchain\Litecoin;
 use App\Models\Blockchain\Litecoin\Address;
 use App\Services\DataServices\Blockchain\RemoteApp\RemoteAPI;
 use App\Services\Litecoin\AddressSummary;
 use App\Services\Litecoin\BlockchainLitecoin;
-use App\Services\Litecoin\Syncers\ByAddress\Address\Full;
-use Carbon\Carbon;
-use Illuminate\Support\Arr;
+use App\Services\Litecoin\Syncers\ByAddress\Address\RemoteFullSyncer;
 use Illuminate\Support\Facades\DB;
 
 class AddressSyncer
@@ -31,33 +30,26 @@ class AddressSyncer
     public function syncInformation()
     {
         dump('Sync information about ' . $this->address->address);
+
         $this->address->sync_status = 'syncing_blockchain_data';
         $this->address->sync_status_code = 'ok';
         $this->address->save();
 
         $summary = new AddressSummary($this->address);
         $summary->handle();
+
+        event(new Updated($this->address));
     }
 
     public function sync()
     {
-        if($this->blockchain->getSyncMode() === BlockchainLitecoin::SYNC_MODE_FULL) {
+        if ($this->blockchain->getSyncMode() === BlockchainLitecoin::SYNC_MODE_FULL) {
             $this->fullSyncCase();
-            return;
+        } else {
+            $this->remoteSyncCase();
         }
 
-        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SYNCING, 'started');
-
-        if ($this->address->blockchain_transactions > 30000) {
-            //throw new AddressTransactionsLimit('Address ' . $this->address->address . ' has too many transactions. Total: ' . $this->address->blockchain_transactions);
-        }
-
-        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SYNCING, 'remote_sync');
-
-        $syncer = new Full($this->address);
-        $syncer->sync();
-
-        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SUCCESS, 'remote_sync');
+        event(new Updated($this->address));
     }
 
     public function updateSyncStatus(string|Litecoin\Address $address, $status, $statusCode)
@@ -75,6 +67,23 @@ class AddressSyncer
                 ]);
         }
     }
+
+    private function remoteSyncCase()
+    {
+        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SYNCING, 'started');
+
+        if ($this->address->blockchain_transactions > 30000) {
+            //throw new AddressTransactionsLimit('Address ' . $this->address->address . ' has too many transactions. Total: ' . $this->address->blockchain_transactions);
+        }
+
+        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SYNCING, 'remote_sync');
+
+        $syncer = new RemoteFullSyncer($this->address);
+        $syncer->sync();
+
+        $this->updateSyncStatus($this->address, Address::SYNC_STATUS_SUCCESS, 'remote_sync');
+    }
+
 
     private function fullSyncCase()
     {

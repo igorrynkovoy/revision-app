@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Blockchain\DepthSync\ListRequest;
 use App\Http\Resources\Blockchain\DepthSyncResource;
 use \App\Models\Blockchain;
+use App\Models\Workspace\Board\BoardJob;
+use App\Repositories\Blockchain\Litecoin\AddressRepository;
 use App\Services\Sync\DepthSync\Creator;
 use App\Services\Sync\DepthSync\Delete;
 use Illuminate\Http\Request;
@@ -54,7 +56,7 @@ class DepthSyncController extends Controller
         return new DepthSyncResource($depthSync);
     }
 
-    public function postCreate(Request $request)
+    public function postCreate(AddressRepository $repository, Request $request)
     {
         $this->validate($request, [
             'address' => 'required',
@@ -80,12 +82,7 @@ class DepthSyncController extends Controller
         $limitAddresses = $request->get('limit_addresses');
         $limitTransactions = $request->get('limit_transactions');
 
-        /** @var Blockchain\Litecoin\Address $address */
-        $address = Blockchain\Litecoin\Address::firstOrCreate(['address' => $address]);
-        if ($address->wasRecentlyCreated) {
-            // TODO: Это ведь точно работа репозитория
-            $address = $address->fresh();
-        }
+        $address = $repository->getAddressByAddress($address);
 
         $service = new Creator($address);
         $depthSync = $service->create($depth, $limitAddresses, $limitTransactions, $direction);

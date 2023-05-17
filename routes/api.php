@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/bootstrap', ['uses' => 'BootstrapController@getBootstrap']);
+
 Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function () {
     Route::get('/list', 'WorkspaceController@getList');
     Route::post('/create', 'WorkspaceController@postCreate');
@@ -27,12 +28,24 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
     Route::get('/{workspace}/details', 'WorkspaceController@getDetails');
 
     Route::group(['prefix' => '/boards', 'namespace' => 'Boards'], function () {
+        Route::get('/getById/{board}', 'BoardsController@getBoard');
+
         Route::group(['prefix' => '/layouts'], function () {
             Route::get('/list', 'LayoutsController@getList');
+
             Route::post('/create', 'LayoutsController@postCreate');
             Route::post('/edit/{boardLayout}', 'LayoutsController@postEdit');
             Route::post('/delete/{boardLayout}', 'LayoutsController@postDelete');
+
             Route::get('/{boardLayout}', 'LayoutsController@getLayout');
+        });
+
+        Route::group(['prefix' => 'tools', 'namespace' => 'Tools'], function () {
+            Route::group(['prefix' => 'address'], function () {
+                Route::get('/details', 'AddressController@getDetails');
+                Route::get('/neighbors', 'AddressController@getNeighbors');
+                Route::get('/deep-neighbors', 'AddressController@getDeepNeighbors');
+            });
         });
     });
 
@@ -41,11 +54,12 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
         Route::post('/create', 'BoardsController@postCreate');
         Route::post('/update/{board}', 'BoardsController@postUpdate')->scopeBindings();
 
+        // TODO: Remove, deprecated
         Route::group(['prefix' => '/{board}'], function () {
             Route::get('/', 'BoardsController@getBoard');
-            Route::get('/items', 'Boards\ItemsController@getItems');
         })->scopeBindings();
     });
+
     Route::group(['prefix' => '/{workspace}/labels'], function () {
         Route::get('/list', 'LabelController@getList');
         Route::post('/create', 'LabelController@postCreate');

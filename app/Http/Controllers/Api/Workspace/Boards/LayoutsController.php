@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Workspace\Boards;
 
+use App\Events\Workspace\Board\Layout\Created;
+use App\Events\Workspace\Board\Layout\Updated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Workspace\Board\Layout\CreateRequest;
 use App\Http\Requests\Workspace\Board\Layout\ListRequest;
@@ -36,6 +38,8 @@ class LayoutsController extends Controller
         $layout->board_id = $board->id;
         $layout->save();
 
+        event(new Created($layout->board_id));
+
         return new LayoutResource($layout);
     }
 
@@ -44,6 +48,8 @@ class LayoutsController extends Controller
         $layout->title = $request->get('title');
         $layout->layout = $request->get('layout');
         $layout->save();
+
+        event(new Updated($layout->board_id));
 
         return new LayoutResource($layout);
     }

@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Workspace\CreateRequest;
 use App\Http\Resources\Workspaces\WorkspaceResource;
 use App\Models\Workspace;
+use App\Repositories\Interfaces\WorkspaceRepositoryInterface;
 
 class WorkspaceController extends Controller
 {
-    public function getList()
+    public function getList(WorkspaceRepositoryInterface $repository)
     {
-        $workspaces = Workspace::query()
-            ->orderBy('title', 'asc')
-            ->get();
+        $workspaces = $repository->all();
 
         return WorkspaceResource::collection($workspaces);
     }

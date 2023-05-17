@@ -52,13 +52,12 @@ class Address extends Model implements AddressEntity
         return $this->synced_block_number === $this->blockchain_last_tx_block;
     }
 
-    public function isSynced2(): bool
+    public function isSynced2($ttlSeconds = 30): bool
     {
         // TODO: Rename
         // How long data is fresh
-        $ttl = 30;
 
-        if($this->blockchain_data_updated_at?->diffInSeconds() > $ttl) {
+        if($this->blockchain_data_updated_at?->diffInSeconds() > $ttlSeconds) {
             return false;
         }
 

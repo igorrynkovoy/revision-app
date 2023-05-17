@@ -5,6 +5,7 @@ namespace App\Jobs\Blockchain\Litecoin;
 use App\Exceptions\Services\Sync\Blockchain\Litecoin\AddressSyncer\AddressNotFound;
 use App\Exceptions\Services\Sync\Blockchain\Litecoin\AddressSyncer\AddressTransactionsLimit;
 use App\Models\Blockchain\Litecoin\Address;
+use App\Repositories\Blockchain\Litecoin\AddressRepository;
 use App\Services\Litecoin\Syncers\ByAddress\AddressSyncer;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Bus\Queueable;
@@ -42,13 +43,11 @@ class SyncAddress implements ShouldQueue//, ShouldBeUnique
      *
      * @return void
      */
-    public function handle()
+    public function handle(AddressRepository $repository)
     {
         dump(sprintf('Litecoin/SyncAddress started for %s with %s attempt', $this->addressValue, $this->attempts()));
 
-        /** @var Address $address */
-        $address = Address::query()
-            ->firstWhere('address', $this->addressValue);
+        $address = $repository->getAddressByAddress($this->addressValue);
 
         if (!$address) {
             throw new AddressNotFound('Address ' . $this->addressValue . ' not found.');

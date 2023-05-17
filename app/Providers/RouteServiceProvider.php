@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Blockchain\DepthSync;
 use App\Models\Workspace;
+use App\Repositories\Interfaces\WorkspaceRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -54,8 +55,9 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('workspace', function ($value) {
-            return Workspace::query()
-                ->findOrFail($value);
+            /** @var WorkspaceRepositoryInterface $repository */
+            $repository = app(WorkspaceRepositoryInterface::class);
+            return $repository->getById($value);
         });
     }
 
