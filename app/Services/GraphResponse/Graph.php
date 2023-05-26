@@ -50,11 +50,11 @@ class Graph
         ];
 
         foreach ($this->nodes as $nodeId => $node) {
-            $result['nodes'][$nodeId] = $node->toArray();
+            $result['nodes'][] = $node->toArray();
         }
 
         foreach ($this->edges as $edgeId => $edge) {
-            $result['edges'][$edgeId] = $edge->toArray();
+            $result['edges'][] = $edge->toArray();
         }
 
         return $result;

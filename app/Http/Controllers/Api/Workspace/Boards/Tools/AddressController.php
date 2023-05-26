@@ -8,9 +8,8 @@ use App\Http\Resources\Workspaces\Boards\Jobs\JobResource;
 use App\Jobs\Blockchain\Litecoin\SyncAddress;
 use App\Models\Workspace\Board\Board;
 use App\Repositories\Blockchain\Litecoin\AddressRepository;
+use App\Services\GraphResponse\Graph;
 use App\Services\Tools\Addresses\GetDeepNeighbors;
-use Graphp\Graph\Graph;
-use Graphp\Graph\Vertex;
 use Illuminate\Http\Request;
 
 class AddressController extends Controller
@@ -48,11 +47,10 @@ class AddressController extends Controller
         $recipients = $repository->toolGetRecipientsByAddress($address->address);
         $recipients = array_slice($recipients, 0, $limit);
 
-
-        $graph = new \App\Services\GraphResponse\Graph();
-        $mainAddressNode = $graph->createNode($address->address)->setType('Address');
+        $graph = new Graph();
+        $mainAddressNode = $graph->createNode($address->address, ['address' => $address->address])->setType('Address');
         foreach ($senders as $sender) {
-            $senderNode = $graph->createNode($sender->address)->setType('Address');
+            $senderNode = $graph->createNode($sender->address, ['address' => $sender->address])->setType('Address');
             $graph->createEdge($senderNode, $mainAddressNode, null, ['tx_count' => $sender->tx_count])->setType('Send');
         }
         foreach ($recipients as $recipient) {
