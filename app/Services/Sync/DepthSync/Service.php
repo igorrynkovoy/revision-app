@@ -15,7 +15,10 @@ class Service
     public function create($address, int $depth, int $limitAddresses, int $limitTransactions): DepthSync
     {
         $creator = new Creator($address);
-        return $creator->create($depth, $limitAddresses, $limitTransactions, DepthSync::DIRECTION_BOTH);
+        $depthSync = $creator->create($depth, $limitAddresses, $limitTransactions, DepthSync::DIRECTION_BOTH);
+        $creator->runJobs($depthSync);
+
+        return $depthSync;
     }
 
     public function handleRootOnDepth(DepthSync $rootSync, int $depth)

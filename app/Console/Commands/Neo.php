@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Blockchain\Ethereum;
-use App\Models\Graph\Ethereum\Address;
-use App\Models\Graph\Ethereum\Transaction;
+use App\Models\Blockchain\Litecoin\Transaction;
+use App\Models\Blockchain\Litecoin\TransactionOutput;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
+use Laudis\Neo4j\Authentication\Authenticate;
+use Laudis\Neo4j\Client;
+use Laudis\Neo4j\ClientBuilder;
+use Laudis\Neo4j\Databags\Statement;
 
 class Neo extends Command
 {
@@ -24,7 +26,7 @@ class Neo extends Command
      */
     protected $description = 'Command description';
 
-    protected $etherScan;
+    protected Client $client;
 
     /**
      * Execute the console command.
@@ -33,56 +35,106 @@ class Neo extends Command
      */
     public function handle()
     {
-        Ethereum\Transaction::with(['inputs', 'outputs'])->chunk(100, function (Collection $collection) {
-            $collection->each(function (Ethereum\Transaction $transaction) {
-                $this->info('Save ' . $transaction->hash);
-                $this->saveTx($transaction);
-            });
-        });
-        dd();
-        $from = Address::firstOrCreate(['address' => '0xadee0d9485820c6d099deb0b09e312639e665c84', 'type' => 'address']);
-        $to = Address::firstOrCreate(['address' => '0x912fd21d7a69678227fe6d08c64222db41477ba0', 'type' => 'address']);
+        $this->client = ClientBuilder::create()
+            //->withDriver("neo4j", "neo4j://localhost:7687?database=neo4j", Authenticate::basic("laravel", "zx87cv54"))
+            ->withDriver("neo4j", "http://57.128.75.50:7474?database=revision-igor", Authenticate::basic("neo4j", "zx87cv54"))
+            ->build();
 
-
-        $transaction = Transaction::firstOrNew(['hash' => '0x3b3ce9e5fd356cdec4380a3207c5de8d33571e0b70a04b8a005e852ca7a44b3d']);
-        if (!$transaction->exists) {
-            $transaction->hash = '0x3b3ce9e5fd356cdec4380a3207c5de8d33571e0b70a04b8a005e852ca7a44b3d';
-            $transaction->blockNumber = 15083957;
-            $transaction->gasUsage = 21000;
-            $transaction->gasPrice = 0.000000020387304818;
-            $transaction->save();
-        }
-        $transaction->in()->attach($from, ['amount' => 135416764491346912]);
-        $transaction->out()->save($to, ['amount' => 135416764491346912]);
+        /** @var Transaction $transaction */
+        $transaction = Transaction::where('hash', '2f3a50b2bf0b5d6ae4cd619a0b3fef2d7cd38891300bfaeb4148a6e903f50732')->first();
+        $transaction = Transaction::where('hash', '02145c7a72820cf858fefb30ecac743801a42b3503338870a3a71d1daca45732')->first();
+        $this->saveTx($transaction);
     }
 
-    private function saveTx(Ethereum\Transaction $tx)
+    private function saveTx(Transaction $transaction)
     {
-        $transaction = Transaction::firstOrNew(['hash' => $tx->hash]);
-        if (!$transaction->exists) {
-            $transaction->blockNumber = $tx->block_number;
-            $transaction->gasUsage = $tx->gas_usage;
-            $transaction->gasPrice = $tx->gas_price;
-            $transaction->save();
-        }
+        $this->info('Save TX: ' . $transaction->hash);
 
-        foreach ($tx->inputs as $input) {
-            $from = Address::firstOrCreate([
+        $statement =
+            'MERGE (tx:Transaction {hash: $tx.hash})
+                        ON CREATE SET
+                           tx.block_hash = $tx.blockHash,
+                           tx.block_number = $tx.blockNumber,
+                           tx.fee = $tx.fee,
+                           tx.amount = $tx.amount,
+                           tx.added_at = $tx.addedAt,
+                           tx.total_inputs = $tx.totalInputs,
+                           tx.total_outputs = $tx.totalOutputs';
+        $parameters = [];
+        $parameters['tx'] = [
+            "hash" => $transaction->hash,
+            "blockHash" => $transaction->block_hash,
+            "blockNumber" => $transaction->block_number,
+            "fee" => $transaction->fee,
+            "amount" => $transaction->amount,
+            "addedAt" => $transaction->added_at->toDateTimeString(),
+            "totalInputs" => $transaction->total_inputs,
+            "totalOutputs" => $transaction->total_outputs
+        ];
+
+        $this->client->runStatement(Statement::create($statement, $parameters));
+
+        $t = microtime(true);
+        $this->saveInputs($transaction);
+        dump(microtime(true) - $t);
+
+        $t = microtime(true);
+        $this->saveOutputs($transaction);
+        dump(microtime(true) - $t);
+    }
+
+    private function saveInputs(Transaction $transaction)
+    {
+        $parameters = [
+            'inputs' => []
+        ];
+
+        // $inputs = $transaction->inputs->unique('address');
+        foreach ($transaction->inputs as $input) {
+            /** @var $input TransactionOutput */
+            $this->info('Save input ' . $input->input_index);
+            $params = [
+                'inputTxHash' => $input->input_transaction_hash,
+                'inputIndex' => $input->input_index,
                 'address' => $input->address,
-                'type' => 'address'
-            ]);
-
-            $transaction->in()->attach($from, ['amount' => $input->value]);
-            $this->info('Attach in ' . $input->address);
+                'inputValue' => $input->value,
+                'previousTxHash' => $input->transaction_hash,
+                'previousTxOutput' => $input->index
+            ];
+            $parameters['inputs'][] = $params;
         }
 
-        foreach ($tx->outputs as $output) {
-            $from = Address::firstOrCreate([
+        $statement = "UNWIND \$inputs AS input\n";
+        $statement .= "MERGE (tx:Transaction {hash: input.inputTxHash})\n";
+        $statement .= "MERGE (a:Address {address: input.address})\n";
+        $statement .= "MERGE (tx)<-[:AS_INPUT {index: input.inputIndex, tx_hash: input.inputTxHash, value: input.inputValue, previous_tx_hash: input.previousTxHash, previous_tx_output: input.previousTxOutput}]-(a)";
+
+        $this->client->runStatement(new Statement($statement, $parameters));
+    }
+
+    private function saveOutputs(Transaction $transaction)
+    {
+        $parameters = [
+            'outputs' => []
+        ];
+
+        foreach ($transaction->outputs as $output) {
+            /** @var $output TransactionOutput */
+            $this->info('Save output ' . $output->input_index);
+            $params = [
+                'txHash' => $output->transaction_hash,
+                'outputIndex' => $output->index,
                 'address' => $output->address,
-                'type' => 'address'
-            ]);
-            $transaction->out()->attach($from, ['amount' => $output->value]);
-            $this->info('Attach out ' . $output->address);
+                'value' => $output->value
+            ];
+            $parameters['outputs'][] = $params;
         }
+
+        $statement = "UNWIND \$outputs AS output\n";
+        $statement .= "MERGE (tx:Transaction {hash: output.txHash})\n";
+        $statement .= "MERGE (a:Address {address: output.address})\n";
+        $statement .= "MERGE (tx)-[:AS_OUTPUT {index: output.outputIndex, value: output.value}]->(a)";
+
+        $this->client->runStatement(new Statement($statement, $parameters));
     }
 }

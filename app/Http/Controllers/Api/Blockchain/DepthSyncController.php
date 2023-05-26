@@ -86,6 +86,7 @@ class DepthSyncController extends Controller
 
         $service = new Creator($address);
         $depthSync = $service->create($depth, $limitAddresses, $limitTransactions, $direction);
+        $service->runJobs($depthSync);
 
         event(new Created($depthSync));
 

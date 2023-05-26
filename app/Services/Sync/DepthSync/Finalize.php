@@ -3,6 +3,7 @@
 namespace App\Services\Sync\DepthSync;
 
 use App\Models\Blockchain\DepthSync;
+use App\Models\ToolResult\Address\DeepNeighbors;
 
 class Finalize
 {
@@ -15,11 +16,15 @@ class Finalize
 
     public function handle()
     {
-
+        $this->finishBoardJobs();
     }
 
     private function finishBoardJobs()
     {
+        $toolDeepNeighbors = DeepNeighbors::where('depth_synce_id', $this->depthSync->id)->first();
 
+        if ($toolDeepNeighbors) {
+            //dispatch()
+        }
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property integer $board_id
  * @property string $jobable_type
  * @property integer $jobable_id
+ * @property string $type
  * @property boolean $finished
  * @property Carbon $finished_at
  * @property Carbon $created_at

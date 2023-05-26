@@ -23,7 +23,8 @@ class JobResource extends JsonResource
             'board_id' => $this->board_id,
             'jobable_type' => $this->jobable_type,
             'jobable_id' => $this->jobable_id,
-            'finished' => $this->finished,
+            'type' => $this->type,
+            'finished' => (bool)$this->finished,
             'finished_at' => \Dates::toTimestamp($this->finished_at),
             'created_at' => \Dates::toTimestamp($this->created_at),
             'updated_at' => \Dates::toTimestamp($this->updated_at)

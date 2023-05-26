@@ -40,6 +40,12 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
             Route::get('/{boardLayout}', 'LayoutsController@getLayout');
         });
 
+        Route::group(['prefix' => '/jobs'], function () {
+            Route::get('/list', 'JobsController@getList');
+            Route::get('/result/{boardJob}', 'JobsController@getResult');
+            Route::post('/cancel/{boardJob}', 'JobsController@postCancel');
+        });
+
         Route::group(['prefix' => 'tools', 'namespace' => 'Tools'], function () {
             Route::group(['prefix' => 'address'], function () {
                 Route::get('/details', 'AddressController@getDetails');
@@ -53,11 +59,7 @@ Route::group(['prefix' => 'workspaces', 'namespace' => 'Workspace'], function ()
         Route::get('/list', 'BoardsController@getList');
         Route::post('/create', 'BoardsController@postCreate');
         Route::post('/update/{board}', 'BoardsController@postUpdate')->scopeBindings();
-
-        // TODO: Remove, deprecated
-        Route::group(['prefix' => '/{board}'], function () {
-            Route::get('/', 'BoardsController@getBoard');
-        })->scopeBindings();
+        Route::get('/{board}', 'BoardsController@getBoard')->scopeBindings();
     });
 
     Route::group(['prefix' => '/{workspace}/labels'], function () {

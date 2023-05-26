@@ -42,8 +42,6 @@ class Creator
         $depthSync->address_synced = $this->isAddressSynced();
         $depthSync->save();
 
-        $this->runJobs($depthSync);
-
         return $depthSync;
     }
 
@@ -52,7 +50,7 @@ class Creator
         return $this->address->isSynced2();
     }
 
-    private function runJobs(DepthSync $depthSync)
+    public function runJobs(DepthSync $depthSync)
     {
         if ($depthSync->address_synced) {
             dispatch(new ProcessDepthSync($depthSync->id, $depthSync->current_depth));

@@ -54,6 +54,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->firstOrFail();
         });
 
+        Route::bind('boardJob', function ($value) {
+            return Workspace\Board\BoardJob::query()
+                ->where('id', $value)
+                ->firstOrFail();
+        });
+
         Route::bind('workspace', function ($value) {
             /** @var WorkspaceRepositoryInterface $repository */
             $repository = app(WorkspaceRepositoryInterface::class);

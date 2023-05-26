@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Api\Workspace\Boards\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Blockchain\Litecoin\AddressResource;
+use App\Http\Resources\Workspaces\Boards\Jobs\JobResource;
 use App\Jobs\Blockchain\Litecoin\SyncAddress;
+use App\Models\Workspace\Board\Board;
 use App\Repositories\Blockchain\Litecoin\AddressRepository;
+use App\Services\Tools\Addresses\GetDeepNeighbors;
+use Graphp\Graph\Graph;
+use Graphp\Graph\Vertex;
 use Illuminate\Http\Request;
 
 class AddressController extends Controller
@@ -26,12 +31,12 @@ class AddressController extends Controller
 
     public function getNeighbors(AddressRepository $repository, Request $request)
     {
-        $limit = min(100, $request->get('limit', 100));
-        $ttl = 9999999;
         $this->validate($request, ['address' => 'required', 'blockchain' => 'required|in:LTC']);
 
-        $address = $request->get('address');
-        $address = $repository->getAddressByAddress($address);
+        $limit = min(100, $request->get('limit', 100));
+
+        $ttl = 9999999;
+        $address = $repository->getAddressByAddress($request->get('address'));
         if (!$address->isSynced2($ttl)) {
             dispatch(new SyncAddress($address->address));
 
@@ -39,23 +44,49 @@ class AddressController extends Controller
         }
 
         $senders = $repository->toolGetSendersToAddress($address->address);
-        $sendersAddresses = $repository->getAddresses(array_slice(\Arr::pluck($senders, 'address'), 0, $limit));
+        $senders = array_slice($senders, 0, $limit);
         $recipients = $repository->toolGetRecipientsByAddress($address->address);
-        $recipientsAddresses = $repository->getAddresses(array_slice(\Arr::pluck($recipients, 'address'), 0, $limit));
+        $recipients = array_slice($recipients, 0, $limit);
 
+
+        $graph = new \App\Services\GraphResponse\Graph();
+        $mainAddressNode = $graph->createNode($address->address)->setType('Address');
+        foreach ($senders as $sender) {
+            $senderNode = $graph->createNode($sender->address)->setType('Address');
+            $graph->createEdge($senderNode, $mainAddressNode, null, ['tx_count' => $sender->tx_count])->setType('Send');
+        }
+        foreach ($recipients as $recipient) {
+            $recipientNode = $graph->getNode($recipient->address) ?? $graph->createNode($recipient->address)->setType('Address');
+            $graph->createEdge($mainAddressNode, $recipientNode, null, ['tx_count' => $recipient->tx_count])->setType('Send2');
+        }
+
+        $addresses = $repository->getAddresses(array_unique(array_merge(\Arr::pluck($senders, 'address'), \Arr::pluck($recipients, 'address'))));
         $response = [
-            'senders' => AddressResource::collection($sendersAddresses),
-            'recipients' => AddressResource::collection($recipientsAddresses),
-            'senders_transactions_count' => \Arr::pluck($senders, 'tx_count', 'address'),
-            'recipients_transactions_count' => \Arr::pluck($recipients, 'tx_count', 'address')
+            'addresses' => AddressResource::collection($addresses),
+            'graph' => $graph->toArray()
         ];
 
-        return response()->json($response);
+        return response()->json(['data' => $response]);
     }
 
-    public function getDeepNeighbors()
+    public function getDeepNeighbors(Request $request)
     {
-        // return Job
+        $this->validate($request, ['address' => 'required', 'blockchain' => 'required|in:LTC', 'board_id' => 'required', 'depth' => 'required|integer|min:1|max:3']);
+
+        $address = $request->get('address');
+        $blockchain = $request->get('blockchain');
+        $board = Board::find($request->get('board_id'));
+
+        if (!$board) {
+            abort(404, 'Board not found');
+        }
+
+        $depth = 3;
+
+        $service = new GetDeepNeighbors();
+        $boardJob = $service->createJob($board, $blockchain, $address, $depth);
+
+        return new JobResource($boardJob);
     }
 
 }

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property integer $workspace_id
  * @property Workspace $workspace
  * @property Collection $layouts
+ * @property Collection $jobs
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -25,8 +26,14 @@ class Board extends \Eloquent
     {
         return $this->belongsTo(Workspace::class);
     }
+
     public function layouts()
     {
         return $this->hasMany(BoardLayout::class);
+    }
+
+    public function jobs()
+    {
+        return $this->hasMany(BoardJob::class);
     }
 }
