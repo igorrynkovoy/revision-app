@@ -18,10 +18,13 @@ class GetDeepNeighbors
         $addressRepository = app(AddressRepositoryInterface::class);
         $address = $addressRepository->getAddressByAddress($address);
         $depthSyncCreator = new Creator($address);
+        $depthSyncCreator->setLimitAddresses(20)
+            ->setLimitTransactions(500)
+            ->setMaxDepth($depth);
 
         \DB::beginTransaction();
 
-        $depthSync = $depthSyncCreator->create($depth, 20, 500, DepthSync::DIRECTION_BOTH);
+        $depthSync = $depthSyncCreator->create();
 
         $tool = new DeepNeighbors();
         $tool->board_id = $board->id;

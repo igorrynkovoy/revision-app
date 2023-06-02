@@ -4,23 +4,12 @@ namespace App\Services\Sync\DepthSync;
 
 use App\Events\DepthSync\Updated;
 use App\Exceptions\Services\Sync\DepthSync\InterruptException;
-use App\Interfaces\Blockchain\Address\AddressEntity;
 use App\Jobs\Sync\DepthSync\FinalizeDepthSync;
 use App\Models\Blockchain\DepthSync;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 
 class Service
 {
-    public function create($address, int $depth, int $limitAddresses, int $limitTransactions): DepthSync
-    {
-        $creator = new Creator($address);
-        $depthSync = $creator->create($depth, $limitAddresses, $limitTransactions, DepthSync::DIRECTION_BOTH);
-        $creator->runJobs($depthSync);
-
-        return $depthSync;
-    }
-
     public function handleRootOnDepth(DepthSync $rootSync, int $depth)
     {
         if (!$rootSync->isRoot()) {

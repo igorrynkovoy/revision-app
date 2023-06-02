@@ -41,7 +41,10 @@ class PlayDepth extends Command
             $depth = (int)$this->ask('Specify max depth.', 3);
             $limitAddress = (int)$this->ask('Specify address limit.', 10);
             $limitAddress = min($limitAddress, 20);
-            $depthSync = $service->create($address, $depth, $limitAddress, 100);
+
+            $creator = new DepthSync\Creator($address);
+            $creator->setLimitAddresses($limitAddress)->setMaxDepth($depth);
+            $depthSync = $creator->create();
 
             $this->info(sprintf(
                 'Depth sync created for address %s with ID %s. Max depth: %s. Limit address: %s. Limit TXs: %s.',

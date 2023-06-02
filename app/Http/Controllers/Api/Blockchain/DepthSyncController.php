@@ -4,15 +4,13 @@ namespace App\Http\Controllers\Api\Blockchain;
 
 use App\Events\DepthSync\Created;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Blockchain\DepthSync\CreateRequest;
 use App\Http\Requests\Blockchain\DepthSync\ListRequest;
 use App\Http\Resources\Blockchain\DepthSyncResource;
 use \App\Models\Blockchain;
-use App\Models\Workspace\Board\BoardJob;
 use App\Repositories\Blockchain\Litecoin\AddressRepository;
 use App\Services\Sync\DepthSync\Creator;
 use App\Services\Sync\DepthSync\Delete;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class DepthSyncController extends Controller
 {
@@ -56,36 +54,19 @@ class DepthSyncController extends Controller
         return new DepthSyncResource($depthSync);
     }
 
-    public function postCreate(AddressRepository $repository, Request $request)
+    public function postCreate(AddressRepository $repository, CreateRequest $request)
     {
-        $this->validate($request, [
-            'address' => 'required',
-            'blockchain' => 'required|in:LTC',
-            'max_depth' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:16'
-            ],
-            'direction' => [
-                'required',
-                Rule::in(Blockchain\DepthSync::getDirectionsList())
-            ],
-            'limit_addresses' => 'required|integer|min:1|max:50',
-            'limit_transactions' => 'required|integer|min:1|max:128',
-        ]);
-
         $address = $request->get('address');
         $blockchain = $request->get('blockchain');
-        $depth = $request->get('max_depth');
-        $direction = $request->get('direction');
-        $limitAddresses = $request->get('limit_addresses');
-        $limitTransactions = $request->get('limit_transactions');
 
         $address = $repository->getAddressByAddress($address);
 
         $service = new Creator($address);
-        $depthSync = $service->create($depth, $limitAddresses, $limitTransactions, $direction);
+        $service->setLimitAddresses($request->get('limit_addresses'))
+            ->setLimitTransactions($request->get('limit_transactions'))
+            ->setMaxDepth($request->get('max_depth'));
+
+        $depthSync = $service->create($request->get('direction'));
         $service->runJobs($depthSync);
 
         event(new Created($depthSync));

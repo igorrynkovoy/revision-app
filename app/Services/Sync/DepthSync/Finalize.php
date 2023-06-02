@@ -21,7 +21,7 @@ class Finalize
 
     private function finishBoardJobs()
     {
-        $toolDeepNeighbors = DeepNeighbors::where('depth_synce_id', $this->depthSync->id)->first();
+        $toolDeepNeighbors = DeepNeighbors::where('depth_sync_id', $this->depthSync->id)->first();
 
         if ($toolDeepNeighbors) {
             //dispatch()
