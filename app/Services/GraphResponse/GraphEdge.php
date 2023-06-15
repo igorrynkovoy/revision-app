@@ -61,7 +61,7 @@ class GraphEdge
             'source' => $this->from->getId(),
             'target' => $this->to->getId(),
             'type' => $this->type,
-            'attributes' => $this->attributes
+            'attributes' => empty($this->attributes) ? null : $this->attributes
         ];
     }
 

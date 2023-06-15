@@ -56,7 +56,7 @@ class GraphNode
         return [
             'id' => $this->id,
             'type' => $this->type,
-            'attributes' => $this->attributes
+            'attributes' => empty($this->attributes) ? null : $this->attributes
         ];
     }
 
